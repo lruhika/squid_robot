@@ -1,0 +1,4 @@
+float32[] top_left
+float32[] bottom_right
+---
+float32[] coords_array

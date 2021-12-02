@@ -1,0 +1,9 @@
+<launch>
+    
+    <!-- Get Coords Node -->
+    <node type="get_coords.py" pkg="robot_commander" name="get_coords" output="screen"/>
+    
+    <!-- Execute Path Node -->
+    <node type="execute_path.py" pkg="robot_commander" name="execute_path" output="screen"/>
+
+</launch>

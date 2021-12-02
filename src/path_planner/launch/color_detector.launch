@@ -1,0 +1,25 @@
+<launch>
+
+    <!-- Topic Names -->
+    <param name="/cameras/right_hand_camera/image" value="/cameras/right_hand_camera/image"/>
+    <param name="pixel_locations_topic" value="/pixel_locations"/>
+    <!-- <param name="img_discrete_colors_topic" value="/img_discrete_colors"/> -->
+    
+    <!-- Thresholding Parameters -->
+    <rosparam param="thresholds/lower_red">[120, 145 , 50]</rosparam>
+    <rosparam param="thresholds/higher_red">[179, 255, 255]</rosparam>
+
+    <rosparam param="thresholds/lower_green">[38, 128, 50]</rosparam>
+    <rosparam param="thresholds/higher_green">[98, 215, 220]</rosparam>
+
+    <rosparam param="thresholds/lower_blue">[108, 125, 85]</rosparam>
+    <rosparam param="thresholds/higher_blue">[147, 255, 255]</rosparam>
+        
+    <!-- Camera Publisher Node -->
+    <node type="camera_publisher.py" pkg="path_planner" name="camera_publisher" output="screen"/>
+    <param name="camera_device" value="0"/>
+
+    <!-- Thresholds Tuner / Get Points Node -->
+    <node type="get_points.py" pkg="path_planner" name="get_points" output="screen"/>
+
+</launch>
