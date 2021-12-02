@@ -1,1 +1,3 @@
 */CMakeLists.txt
+*/src/path_planner/CMakeLists.txt
+*/src/robot_commander/CMakeLists.txt
