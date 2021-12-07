@@ -159,6 +159,7 @@ class GetCoordsResponse(genpy.Message):
   _type = "robot_commander/GetCoordsResponse"
   _has_header = False  # flag to mark the presence of a Header object
   _full_text = """float32[] coords_array
+
 """
   __slots__ = ['coords_array']
   _slot_types = ['float32[]']

@@ -1,7 +1,7 @@
 <launch>
 
     <!-- Topic Names -->
-    <param name="/cameras/right_hand_camera/image" value="/cameras/right_hand_camera/image"/>
+    <param name="/cameras/left_hand_camera/image" value="/cameras/left_hand_camera/image"/>
     <param name="pixel_locations_topic" value="/pixel_locations"/>
     <!-- <param name="img_discrete_colors_topic" value="/img_discrete_colors"/> -->
     

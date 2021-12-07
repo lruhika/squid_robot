@@ -265,17 +265,38 @@ _gtest_INCLUDES:FILEPATH=/usr/include/gtest/gtest.h
 //Path to a file.
 _gtest_SOURCES:FILEPATH=/usr/src/gtest/src/gtest.cc
 
+//The directory containing a CMake configuration file for actionlib.
+actionlib_DIR:PATH=/opt/ros/kinetic/share/actionlib/cmake
+
 //The directory containing a CMake configuration file for actionlib_msgs.
 actionlib_msgs_DIR:PATH=/opt/ros/kinetic/share/actionlib_msgs/cmake
 
+//The directory containing a CMake configuration file for baxter_core_msgs.
+baxter_core_msgs_DIR:PATH=/scratch/shared/baxter_ws/devel/share/baxter_core_msgs/cmake
+
+//The directory containing a CMake configuration file for baxter_interface.
+baxter_interface_DIR:PATH=/scratch/shared/baxter_ws/devel/share/baxter_interface/cmake
+
+//The directory containing a CMake configuration file for baxter_maintenance_msgs.
+baxter_maintenance_msgs_DIR:PATH=/scratch/shared/baxter_ws/devel/share/baxter_maintenance_msgs/cmake
+
+//The directory containing a CMake configuration file for baxter_tools.
+baxter_tools_DIR:PATH=/scratch/shared/baxter_ws/devel/share/baxter_tools/cmake
+
 //The directory containing a CMake configuration file for catkin.
 catkin_DIR:PATH=/opt/ros/kinetic/share/catkin/cmake
+
+//The directory containing a CMake configuration file for control_msgs.
+control_msgs_DIR:PATH=/opt/ros/kinetic/share/control_msgs/cmake
 
 //The directory containing a CMake configuration file for cpp_common.
 cpp_common_DIR:PATH=/opt/ros/kinetic/share/cpp_common/cmake
 
 //The directory containing a CMake configuration file for cv_bridge.
 cv_bridge_DIR:PATH=/opt/ros/kinetic/share/cv_bridge/cmake
+
+//The directory containing a CMake configuration file for dynamic_reconfigure.
+dynamic_reconfigure_DIR:PATH=/opt/ros/kinetic/share/dynamic_reconfigure/cmake
 
 //The directory containing a CMake configuration file for gencpp.
 gencpp_DIR:PATH=/opt/ros/kinetic/share/gencpp/cmake
@@ -371,11 +392,17 @@ robot_commander_SOURCE_DIR:STATIC=/home/cc/ee106a/fl21/class/ee106a-aet/ros_work
 //The directory containing a CMake configuration file for rosconsole.
 rosconsole_DIR:PATH=/opt/ros/kinetic/share/rosconsole/cmake
 
+//The directory containing a CMake configuration file for roscpp.
+roscpp_DIR:PATH=/opt/ros/kinetic/share/roscpp/cmake
+
 //The directory containing a CMake configuration file for roscpp_serialization.
 roscpp_serialization_DIR:PATH=/opt/ros/kinetic/share/roscpp_serialization/cmake
 
 //The directory containing a CMake configuration file for roscpp_traits.
 roscpp_traits_DIR:PATH=/opt/ros/kinetic/share/roscpp_traits/cmake
+
+//The directory containing a CMake configuration file for rosgraph_msgs.
+rosgraph_msgs_DIR:PATH=/opt/ros/kinetic/share/rosgraph_msgs/cmake
 
 //The directory containing a CMake configuration file for rospy.
 rospy_DIR:PATH=/opt/ros/kinetic/share/rospy/cmake
@@ -400,6 +427,9 @@ tf2_msgs_DIR:PATH=/opt/ros/kinetic/share/tf2_msgs/cmake
 
 //The directory containing a CMake configuration file for trajectory_msgs.
 trajectory_msgs_DIR:PATH=/opt/ros/kinetic/share/trajectory_msgs/cmake
+
+//The directory containing a CMake configuration file for xmlrpcpp.
+xmlrpcpp_DIR:PATH=/opt/ros/kinetic/share/xmlrpcpp/cmake
 
 
 ########################

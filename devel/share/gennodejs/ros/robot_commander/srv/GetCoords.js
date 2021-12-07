@@ -163,6 +163,7 @@ class GetCoordsResponse {
     return `
     float32[] coords_array
     
+    
     `;
   }
 

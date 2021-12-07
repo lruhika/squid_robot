@@ -1,7 +1,7 @@
 #!/usr/bin/env python  
 import rospy
 from robot_commander.srv import GetCoords
-from color_detector.srv import GetPoints
+from path_planner.srv import GetPoints
 import numpy as np
 
 def callback(req):
@@ -14,15 +14,19 @@ def callback(req):
     try:
         get_points = rospy.ServiceProxy('get_points', GetPoints)
         response = get_points()
+        print(response)
+
         points = response.points_array
+        shape = points[0] # first element in the list is the shape of the img
+        points = points[1:]
+
+        coords = np.empty(len(points))
+        coords[:, 0] = (points[:, 0] / shape[0]) * width + top_left[0]       # TODO not sure if this is right
+        coords[:, 1] = (points[:, 1] / shape[1])* height + bottom_right[1]  # TODO not sure if this is right
+        return coords
     except rospy.ServiceException as e:
-        print(f"Service call failed: {e}")
-
-    coords = np.empty(points.shape)
-    coords[:, 0] = points[:, 0] / width + top_left[0]       # TODO not sure if this is right
-    coords[:, 1] = points[:, 1] / height + bottom_right[1]  # TODO not sure if this is right
-    return coords
-
+        print(e)
+        return []
 
 def main():
     rospy.wait_for_service('get_points')

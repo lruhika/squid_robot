@@ -146,6 +146,7 @@
 float32[] bottom_right
 ---
 float32[] coords_array
+
 ")
 
 (setf (get robot_commander::GetCoordsResponse :md5sum-) "5fda44d5b45a78ce5dc124b63492459c")
@@ -155,6 +156,7 @@ float32[] coords_array
 float32[] bottom_right
 ---
 float32[] coords_array
+
 ")
 
 

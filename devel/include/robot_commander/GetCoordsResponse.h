@@ -139,6 +139,7 @@ struct Definition< ::robot_commander::GetCoordsResponse_<ContainerAllocator> >
   static const char* value()
   {
     return "float32[] coords_array\n\
+\n\
 ";
   }
 
