@@ -29,8 +29,9 @@ def callback(req):
         while i < len(points):
             p_x = points[i]
             p_y = points[i + 1]
-            x_coord = (p_x / shape[0]) * width + top_left[0]
-            y_coord = (p_y / shape[1]) * height + bottom_right[1]
+            x_coord = (p_x / shape[0]) * width + bottom_right[0]
+            y_coord = (p_y / shape[1]) * height - bottom_right[1]
+            import pdb;pdb.set_trace()
             coords.append(x_coord)
             coords.append(y_coord)
             i += 2

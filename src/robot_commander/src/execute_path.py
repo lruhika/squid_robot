@@ -1,20 +1,23 @@
 #!/usr/bin/env python  
 import rospy
 from baxter_forward_kinematics import *
+import baxter_interface
 from baxter_interface import gripper as robot_gripper
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
+from trac_ik_python.trac_ik import IK
 from robot_commander.srv import GetCoords
 from moveit_commander import MoveGroupCommander
 import tf2_ros
 import numpy as np
 
 POKE_DEPTH = 0.03   # TODO tune this
-HOVER_Z = 0.0     # TODO tune this MAYBE HOME Z (-0.05)
+HOVER_Z = -0.2     # TODO tune this MAYBE HOME Z (-0.05)
 # HOME_COORD = np.array([0.68506, 0.41719, 0.033956])    # Tuned and tested on 12/3 TODO tune this
-HOME_COORD = np.array([1.0120748281478882, 0.18082711100578308, 0.0])
-1.0120748281478882
-0.18082711100578308
-0.0
+# HOME_COORD = np.array([1.0120748281478882, 0.18082711100578308, 0.0])
+HOME_COORD = np.array([0.6, 0.2, 0.0])
+# 1.0120748281478882
+# 0.18082711100578308
+# 0.0
 
 HOME_ORIENTATION = np.array([-0.032689, 0.99945, 0.0049918, 0.0015393])
 group = MoveGroupCommander('left_arm')
@@ -25,6 +28,29 @@ def coord_to_poke(coord):
     poke_coord = coord - np.array([0, 0, POKE_DEPTH])
     return start_coord, poke_coord, end_coord
 
+def do_ik(coord, compute_ik):
+    request = construct_request(coord)
+    while True:
+        try:
+            response = compute_ik(request)
+            print(response)
+            group.set_pose_target(request.ik_request.pose_stamped)
+            group.go()
+            break
+            # if response.error_code == 1:
+            #     group.set_pose_target(request.ik_request.pose_stamped)
+            #     group.go()
+            #     break
+            # else: 
+            #     joint_angles = get_joint_angles(coord)
+            #     print("joint angles:", joint_angles)
+            #     joints = ['left_s0', 'left_s1', 'left_e0', 'left_e1', 'left_w0', 'left_w1', 'left_w2']
+            #     joints_dict = {joints[i]:joint_angles[i] for i in range(len(joints))}
+            #     left.set_joint_positions(joints_dict)
+            #     break
+        except rospy.ServiceException as e:
+            # TODO get position of arm
+            print(e)
 
 # def construct_request(coord, orientation = np.array([0.0, 1.0, 0.0, 0.0])):
 def construct_request(coord):
@@ -42,12 +68,21 @@ def construct_request(coord):
     print(request.ik_request.pose_stamped.pose.position.z)
     
     # TODO tune orientation
-    request.ik_request.pose_stamped.pose.orientation.x = 0
-    request.ik_request.pose_stamped.pose.orientation.y = 1  
-    request.ik_request.pose_stamped.pose.orientation.z = 0
-    request.ik_request.pose_stamped.pose.orientation.w = 0
+    request.ik_request.pose_stamped.pose.orientation.x = 0.0
+    request.ik_request.pose_stamped.pose.orientation.y = 1.0
+    request.ik_request.pose_stamped.pose.orientation.z = 0.0
+    request.ik_request.pose_stamped.pose.orientation.w = 0.0
 
     return request
+
+def get_joint_angles(coord):
+    ik_solver = IK("base", "left_gripper")
+    # print(ik_solver.base_link, ik_solver.tip_link, ik_solver.joint_names)
+    seed_state = [0.0] * 7
+    joint_angles = ik_solver.get_ik(seed_state, 
+        coord[0], coord[1], coord[2],
+        0.0, 1.0, 0.0, 0.0)
+    return joint_angles
 
 def valid_sol(resp):
     print(resp.solution.multi_dof_joint_state.transforms[0].translation.x)
@@ -74,6 +109,7 @@ def main():
     target_frame, source_frame = 'left_gripper', 'base'
     rospy.wait_for_service('compute_ik')
     compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
+    left = baxter_interface.Limb('left')
     # left_gripper = robot_gripper.Gripper('left')
     #group = MoveGroupCommander('left_arm')
     tfBuffer = tf2_ros.Buffer()
@@ -85,6 +121,7 @@ def main():
         # compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
 
         raw_input('Press enter to go home.')
+        # do_ik(HOME_COORD, compute_ik)
         request = construct_request(HOME_COORD)
         while True:
             try:
@@ -99,7 +136,7 @@ def main():
                 break
             except rospy.ServiceException as e:
                 # TODO get position of arm
-                print("Service call failed: " + e)
+                print(e)
         # go_home(compute_ik, request)
 
         left_gripper = robot_gripper.Gripper('left')
@@ -146,33 +183,35 @@ def main():
         hover_coords = np.block([coords, hover_z])
         for coord in hover_coords:
             print("coord is", coord)
-            request = construct_request(coord)
-            while True:
-                try:
-                    response = compute_ik(request)
-                    print(response)
-                    group.set_pose_target(request.ik_request.pose_stamped)
-                    group.go()
-                    break
-                except rospy.ServiceException as e:
-                    # TODO get position of arm
-                    print(e)
+            do_ik(coord, compute_ik)
+            # request = construct_request(coord)
+            # while True:
+            #     try:
+            #         response = compute_ik(request)
+            #         print(response)
+            #         group.set_pose_target(request.ik_request.pose_stamped)
+            #         group.go()
+            #         break
+            #     except rospy.ServiceException as e:
+            #         # TODO get position of arm
+            #         print(e)
 
         raw_input('Press enter to begin executing poking path.')
         for coord in coords:
             start, poke, end = coord_to_poke(coord)
             for destination in [start, poke, end]:
-                request = construct_request(destination)
-                while True:
-                    try:
-                        response = compute_ik(request)
-                        print(response)
-                        group.set_pose_target(request.ik_request.pose_stamped)
-                        group.go()
-                        break
-                    except rospy.ServiceException as e:
-                        # TODO get position of arm
-                        print(e)
+                do_ik(coord, compute_ik)
+                # request = construct_request(destination)
+                # while True:
+                #     try:
+                #         response = compute_ik(request)
+                #         print(response)
+                #         group.set_pose_target(request.ik_request.pose_stamped)
+                #         group.go()
+                #         break
+                #     except rospy.ServiceException as e:
+                #         # TODO get position of arm
+                #         print(e)
 
         print('Image poked out!')
 
