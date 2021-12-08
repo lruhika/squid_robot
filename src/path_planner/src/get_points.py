@@ -20,7 +20,9 @@ def nothing(x):
     pass #Null Operation
 
 def callback(req):
-    image_topic = rospy.get_param("/cameras/left_hand_camera/image", default="/cameras/left_hand_camera/image")
+    # image_topic = rospy.get_param("/cameras/left_hand_camera/image", default="/cameras/left_hand_camera/image")
+    image_topic = rospy.get_param("/cameras/right_hand_camera/image", default="/cameras/right_hand_camera/image")
+
     bridge = cv_bridge.CvBridge()
 
     cv2.namedWindow('Trackbars')

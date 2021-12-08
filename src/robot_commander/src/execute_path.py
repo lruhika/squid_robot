@@ -1,26 +1,25 @@
 #!/usr/bin/env python  
 import rospy
 from baxter_forward_kinematics import *
-import baxter_interface
 from baxter_interface import gripper as robot_gripper
+from intera_interface import gripper as sawyer_robot_gripper
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
-from trac_ik_python.trac_ik import IK
 from robot_commander.srv import GetCoords
 from moveit_commander import MoveGroupCommander
 import tf2_ros
 import numpy as np
 
-POKE_DEPTH = 0.03   # TODO tune this
-HOVER_Z = -0.2     # TODO tune this MAYBE HOME Z (-0.05)
+# POKE_DEPTH = 0.03   # TODO tune this
+# HOVER_Z = -0.2     # TODO tune this MAYBE HOME Z (-0.05)
 # HOME_COORD = np.array([0.68506, 0.41719, 0.033956])    # Tuned and tested on 12/3 TODO tune this
 # HOME_COORD = np.array([1.0120748281478882, 0.18082711100578308, 0.0])
-HOME_COORD = np.array([0.6, 0.2, 0.0])
+# HOME_COORD = np.array([0.6, 0.2, 0.0])
 # 1.0120748281478882
 # 0.18082711100578308
 # 0.0
 
-HOME_ORIENTATION = np.array([-0.032689, 0.99945, 0.0049918, 0.0015393])
-group = MoveGroupCommander('left_arm')
+# HOME_ORIENTATION = np.array([-0.032689, 0.99945, 0.0049918, 0.0015393])
+# group = MoveGroupCommander('left_arm')
 
 def coord_to_poke(coord):
     coord = np.append(coord, HOVER_Z)
@@ -37,19 +36,7 @@ def do_ik(coord, compute_ik):
             group.set_pose_target(request.ik_request.pose_stamped)
             group.go()
             break
-            # if response.error_code == 1:
-            #     group.set_pose_target(request.ik_request.pose_stamped)
-            #     group.go()
-            #     break
-            # else: 
-            #     joint_angles = get_joint_angles(coord)
-            #     print("joint angles:", joint_angles)
-            #     joints = ['left_s0', 'left_s1', 'left_e0', 'left_e1', 'left_w0', 'left_w1', 'left_w2']
-            #     joints_dict = {joints[i]:joint_angles[i] for i in range(len(joints))}
-            #     left.set_joint_positions(joints_dict)
-            #     break
         except rospy.ServiceException as e:
-            # TODO get position of arm
             print(e)
 
 # def construct_request(coord, orientation = np.array([0.0, 1.0, 0.0, 0.0])):
@@ -105,115 +92,171 @@ def go_home(compute_ik, request):
 
 
 def main():
-    rospy.init_node('robot_executor')
-    target_frame, source_frame = 'left_gripper', 'base'
-    rospy.wait_for_service('compute_ik')
-    compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
-    left = baxter_interface.Limb('left')
-    # left_gripper = robot_gripper.Gripper('left')
-    #group = MoveGroupCommander('left_arm')
-    tfBuffer = tf2_ros.Buffer()
-    tfListener = tf2_ros.TransformListener(tfBuffer)
+    robot = raw_input("baxter or sawyer: ")
 
-    while not rospy.is_shutdown():
-        # rospy.wait_for_service('compute_ik')
-        #rospy.init_node('service_query')
-        # compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
+    if robot == "baxter":
+        group = MoveGroupCommander('left_arm')
+        HOME_COORD = np.array([0.6, 0.2, 0.0])
+        POKE_DEPTH = 0.03   # TODO tune this
+        HOVER_Z = -0.2     # TODO tune this MAYBE HOME Z (-0.05)
 
-        raw_input('Press enter to go home.')
-        # do_ik(HOME_COORD, compute_ik)
-        request = construct_request(HOME_COORD)
-        while True:
-            try:
-                response = compute_ik(request)
-                # print(valid_sol(response))
-                # if not valid_sol(response):
-                #     continue
-                print(response)
-                #group = MoveGroupCommander('left_arm')
-                group.set_pose_target(request.ik_request.pose_stamped)
-                group.go()
-                break
-            except rospy.ServiceException as e:
-                # TODO get position of arm
-                print(e)
-        # go_home(compute_ik, request)
+        rospy.init_node('robot_executor')
+        target_frame, source_frame = 'left_gripper', 'base'
+        rospy.wait_for_service('compute_ik')
+        compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
+        tfBuffer = tf2_ros.Buffer()
+        tfListener = tf2_ros.TransformListener(tfBuffer)
 
-        left_gripper = robot_gripper.Gripper('left')
-        print('Calibrating and opening gripper...')
-        left_gripper.calibrate()
-        rospy.sleep(1.0)
-        left_gripper.open()
-        rospy.sleep(1.0)
-        
-        raw_input('Press enter to begin corner calibration.')
-        # get corners of workspace
-        corner_transforms = {}
-        for name in ["top left", "bottom right"]:
-            while not rospy.is_shutdown():
-                raw_input('Move end of poker to the ' + name + ' corner of workspace, then hit enter.')
+        while not rospy.is_shutdown():
+            raw_input('Press enter to go home.')
+            # do_ik(HOME_COORD, compute_ik)
+            request = construct_request(HOME_COORD)
+            while True:
                 try:
-                    trans = tfBuffer.lookup_transform(target_frame, source_frame, rospy.Time())
-                    corner_transforms[name] = trans.transform
+                    response = compute_ik(request)
+                    print(response)
+                    group.set_pose_target(request.ik_request.pose_stamped)
+                    group.go()
                     break
-                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-                    print("Error, try again.")
-                    continue
+                except rospy.ServiceException as e:
+                    # TODO get position of arm
+                    print(e)
 
-        raw_input('Press enter to go home.')
-        request = construct_request(HOME_COORD)
-        go_home(compute_ik, request)
+            left_gripper = robot_gripper.Gripper('left')
+            print('Calibrating and opening gripper...')
+            left_gripper.calibrate()
+            rospy.sleep(1.0)
+            left_gripper.open()
+            rospy.sleep(1.0)
+            
+            raw_input('Press enter to begin corner calibration.')
+            # get corners of workspace
+            corner_transforms = {}
+            for name in ["top left", "bottom right"]:
+                while not rospy.is_shutdown():
+                    raw_input('Move end of poker to the ' + name + ' corner of workspace, then hit enter.')
+                    try:
+                        trans = tfBuffer.lookup_transform(target_frame, source_frame, rospy.Time())
+                        corner_transforms[name] = trans.transform
+                        break
+                    except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                        print("Error, try again.")
+                        continue
 
-        # get width and height of workspace
-        top_left = corner_transforms["top left"].translation
-        bottom_right = corner_transforms['bottom right'].translation
+            raw_input('Press enter to go home.')
+            request = construct_request(HOME_COORD)
+            go_home(compute_ik, request)
 
-        # get coordinates of point trajectory
-        rospy.wait_for_service('get_coords')
-        get_coords = rospy.ServiceProxy('get_coords', GetCoords)
-        req_top_left = [top_left.x, top_left.y, top_left.z]
-        req_bottom_right = [bottom_right.x, bottom_right.y, bottom_right.z]
-        coords_response = get_coords(req_top_left, req_bottom_right)
-        coords = np.array(coords_response.coords_array).reshape((-1, 2))
+            # get width and height of workspace
+            top_left = corner_transforms["top left"].translation
+            bottom_right = corner_transforms['bottom right'].translation
 
-        raw_input('Press enter to trace out path without poking.')
-        print("execute path line 137\n", coords)
-        
-        hover_z = np.tile(HOVER_Z, (len(coords), 1))
-        hover_coords = np.block([coords, hover_z])
-        for coord in hover_coords:
-            print("coord is", coord)
-            do_ik(coord, compute_ik)
-            # request = construct_request(coord)
-            # while True:
-            #     try:
-            #         response = compute_ik(request)
-            #         print(response)
-            #         group.set_pose_target(request.ik_request.pose_stamped)
-            #         group.go()
-            #         break
-            #     except rospy.ServiceException as e:
-            #         # TODO get position of arm
-            #         print(e)
+            # get coordinates of point trajectory
+            rospy.wait_for_service('get_coords')
+            get_coords = rospy.ServiceProxy('get_coords', GetCoords)
+            req_top_left = [top_left.x, top_left.y, top_left.z]
+            req_bottom_right = [bottom_right.x, bottom_right.y, bottom_right.z]
+            coords_response = get_coords(req_top_left, req_bottom_right)
+            coords = np.array(coords_response.coords_array).reshape((-1, 2))
 
-        raw_input('Press enter to begin executing poking path.')
-        for coord in coords:
-            start, poke, end = coord_to_poke(coord)
-            for destination in [start, poke, end]:
-                do_ik(coord, compute_ik)
-                # request = construct_request(destination)
-                # while True:
-                #     try:
-                #         response = compute_ik(request)
-                #         print(response)
-                #         group.set_pose_target(request.ik_request.pose_stamped)
-                #         group.go()
-                #         break
-                #     except rospy.ServiceException as e:
-                #         # TODO get position of arm
-                #         print(e)
+            raw_input('Press enter to trace out path without poking.')
+            print("execute path line 137\n", coords)
+            
+            hover_z = np.tile(HOVER_Z, (len(coords), 1))
+            hover_coords = np.block([coords, hover_z])
+            for coord in hover_coords:
+                print("coord is", coord)
+                do_ik(coord, compute_ik, group)
 
-        print('Image poked out!')
+            raw_input('Press enter to begin executing poking path.')
+            for coord in coords:
+                start, poke, end = coord_to_poke(coord)
+                for destination in [start, poke, end]:
+                    do_ik(coord, compute_ik, group)
+
+            print('Image poked out!')
+    else:
+        group = MoveGroupCommander('right_arm')
+        HOME_COORD = np.array([0.6, 0.2, 0.0])
+        POKE_DEPTH = 0.03   # TODO tune this
+        HOVER_Z = -0.2     # TODO tune this MAYBE HOME Z (-0.05)
+
+        rospy.init_node('robot_executor')
+        target_frame, source_frame = 'right_gripper_tip', 'base'
+        rospy.wait_for_service('compute_ik')
+        compute_ik = rospy.ServiceProxy('compute_ik', GetPositionIK)
+        tfBuffer = tf2_ros.Buffer()
+        tfListener = tf2_ros.TransformListener(tfBuffer)
+
+        while not rospy.is_shutdown():
+            raw_input('Press enter to go home.')
+            # do_ik(HOME_COORD, compute_ik)
+            request = construct_request(HOME_COORD)
+            while True:
+                try:
+                    response = compute_ik(request)
+                    print(response)
+                    group.set_pose_target(request.ik_request.pose_stamped)
+                    group.go()
+                    break
+                except rospy.ServiceException as e:
+                    # TODO get position of arm
+                    print(e)
+
+            right_gripper = sawyer_robot_gripper.Gripper('right')
+            print('Calibrating and opening gripper...')
+            right_gripper.calibrate()
+            rospy.sleep(1.0)
+            right_gripper.open()
+            rospy.sleep(1.0)
+            
+            raw_input('Press enter to begin corner calibration.')
+            # get corners of workspace
+            corner_transforms = {}
+            for name in ["top left", "bottom right"]:
+                while not rospy.is_shutdown():
+                    raw_input('Move end of poker to the ' + name + ' corner of workspace, then hit enter.')
+                    try:
+                        trans = tfBuffer.lookup_transform(target_frame, source_frame, rospy.Time())
+                        corner_transforms[name] = trans.transform
+                        break
+                    except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+                        print("Error, try again.")
+                        continue
+
+            raw_input('Press enter to go home.')
+            request = construct_request(HOME_COORD)
+            go_home(compute_ik, request)
+
+            # get width and height of workspace
+            top_left = corner_transforms["top left"].translation
+            bottom_right = corner_transforms['bottom right'].translation
+
+            # get coordinates of point trajectory
+            rospy.wait_for_service('get_coords')
+            get_coords = rospy.ServiceProxy('get_coords', GetCoords)
+            req_top_left = [top_left.x, top_left.y, top_left.z]
+            req_bottom_right = [bottom_right.x, bottom_right.y, bottom_right.z]
+            coords_response = get_coords(req_top_left, req_bottom_right)
+            coords = np.array(coords_response.coords_array).reshape((-1, 2))
+
+            raw_input('Press enter to trace out path without poking.')
+            print("execute path line 137\n", coords)
+            
+            hover_z = np.tile(HOVER_Z, (len(coords), 1))
+            hover_coords = np.block([coords, hover_z])
+            for coord in hover_coords:
+                print("coord is", coord)
+                do_ik(coord, compute_ik, group)
+
+            raw_input('Press enter to begin executing poking path.')
+            for coord in coords:
+                start, poke, end = coord_to_poke(coord)
+                for destination in [start, poke, end]:
+                    do_ik(coord, compute_ik, group)
+
+            print('Image poked out!')
+
 
 
 if __name__ == '__main__':
