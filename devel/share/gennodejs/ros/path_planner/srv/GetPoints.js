@@ -74,6 +74,7 @@ class GetPointsResponse {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
       this.points_array = null;
+      this.shape = null;
     }
     else {
       if (initObj.hasOwnProperty('points_array')) {
@@ -82,13 +83,21 @@ class GetPointsResponse {
       else {
         this.points_array = [];
       }
+      if (initObj.hasOwnProperty('shape')) {
+        this.shape = initObj.shape
+      }
+      else {
+        this.shape = [];
+      }
     }
   }
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type GetPointsResponse
     // Serialize message field [points_array]
-    bufferOffset = _arraySerializer.float32(obj.points_array, buffer, bufferOffset, null);
+    bufferOffset = _arraySerializer.int32(obj.points_array, buffer, bufferOffset, null);
+    // Serialize message field [shape]
+    bufferOffset = _arraySerializer.int32(obj.shape, buffer, bufferOffset, null);
     return bufferOffset;
   }
 
@@ -97,14 +106,17 @@ class GetPointsResponse {
     let len;
     let data = new GetPointsResponse(null);
     // Deserialize message field [points_array]
-    data.points_array = _arrayDeserializer.float32(buffer, bufferOffset, null)
+    data.points_array = _arrayDeserializer.int32(buffer, bufferOffset, null)
+    // Deserialize message field [shape]
+    data.shape = _arrayDeserializer.int32(buffer, bufferOffset, null)
     return data;
   }
 
   static getMessageSize(object) {
     let length = 0;
     length += 4 * object.points_array.length;
-    return length + 4;
+    length += 4 * object.shape.length;
+    return length + 8;
   }
 
   static datatype() {
@@ -114,13 +126,14 @@ class GetPointsResponse {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '726e62144bd80158a62de6337dc76b64';
+    return 'deb7c82a588abe4d8862527f49dc8cd4';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    float32[] points_array
+    int32[] points_array
+    int32[] shape
     
     `;
   }
@@ -138,6 +151,13 @@ class GetPointsResponse {
       resolved.points_array = []
     }
 
+    if (msg.shape !== undefined) {
+      resolved.shape = msg.shape;
+    }
+    else {
+      resolved.shape = []
+    }
+
     return resolved;
     }
 };
@@ -145,6 +165,6 @@ class GetPointsResponse {
 module.exports = {
   Request: GetPointsRequest,
   Response: GetPointsResponse,
-  md5sum() { return '726e62144bd80158a62de6337dc76b64'; },
+  md5sum() { return 'deb7c82a588abe4d8862527f49dc8cd4'; },
   datatype() { return 'path_planner/GetPoints'; }
 };

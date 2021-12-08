@@ -103,7 +103,9 @@ def callback(req):
             bin_img, path = process_img.process(res_m)
             #print(bin_img)
             print(path)
-            return path
+            # path = np.array(path)
+            path = [y for x in path for y in x]
+            return [path], np.array(bin_img).shape
 
             # newImage2 = np.zeros_like(res_m)
             # print(newImage.shape)

@@ -134,7 +134,7 @@ def main():
         coords = get_coords(req_top_left, req_bottom_right)
 
         raw_input('Press enter to trace out path without poking.')
-        print(coords)
+        print("execute path line 137\n", coords)
         
         hover_z = np.tile(HOVER_Z, (len(coords, 1))) # TODO: TypeError: len() takes exactly one argument (2 given)
         hover_coords = np.append(coords, hover_z)

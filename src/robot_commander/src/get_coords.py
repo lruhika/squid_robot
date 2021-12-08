@@ -14,16 +14,28 @@ def callback(req):
     try:
         get_points = rospy.ServiceProxy('get_points', GetPoints)
         response = get_points()
-        print(response)
+        print("get coords line 17\n", response)
 
         points = response.points_array
-        shape = points[0] # first element in the list is the shape of the img
-        points = points[1:]
+        # shape = [points[0], points[1]] # first element in the list is the shape of the img
+        # points = points[2:]
+        shape = response.shape
 
-        coords = np.empty(len(points))
-        coords[:, 0] = (points[:, 0] / shape[0]) * width + top_left[0]       # TODO not sure if this is right
-        coords[:, 1] = (points[:, 1] / shape[1])* height + bottom_right[1]  # TODO not sure if this is right
-        return coords
+        # coords = np.empty(len(points))
+        # coords[:, 0] = (points[:, 0] / shape[0]) * width + top_left[0]       # TODO not sure if this is right
+        # coords[:, 1] = (points[:, 1] / shape[1])* height + bottom_right[1]  # TODO not sure if this is right
+        coords = []
+        i = 0
+        while i < len(points):
+            p_x = points[i]
+            p_y = points[i + 1]
+            x_coord = (p_x / shape[0]) * width + top_left[0]
+            y_coord = (p_y / shape[1]) * height + bottom_right[1]
+            coords.append(x_coord)
+            coords.append(y_coord)
+            i += 2
+        print("coords type: ", type(coords), "coords: ", coords)
+        return [coords]
     except rospy.ServiceException as e:
         print(e)
         return []

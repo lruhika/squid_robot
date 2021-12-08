@@ -24,17 +24,22 @@ struct GetPointsResponse_
   typedef GetPointsResponse_<ContainerAllocator> Type;
 
   GetPointsResponse_()
-    : points_array()  {
+    : points_array()
+    , shape()  {
     }
   GetPointsResponse_(const ContainerAllocator& _alloc)
-    : points_array(_alloc)  {
+    : points_array(_alloc)
+    , shape(_alloc)  {
   (void)_alloc;
     }
 
 
 
-   typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _points_array_type;
+   typedef std::vector<int32_t, typename ContainerAllocator::template rebind<int32_t>::other >  _points_array_type;
   _points_array_type points_array;
+
+   typedef std::vector<int32_t, typename ContainerAllocator::template rebind<int32_t>::other >  _shape_type;
+  _shape_type shape;
 
 
 
@@ -114,12 +119,12 @@ struct MD5Sum< ::path_planner::GetPointsResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "726e62144bd80158a62de6337dc76b64";
+    return "deb7c82a588abe4d8862527f49dc8cd4";
   }
 
   static const char* value(const ::path_planner::GetPointsResponse_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x726e62144bd80158ULL;
-  static const uint64_t static_value2 = 0xa62de6337dc76b64ULL;
+  static const uint64_t static_value1 = 0xdeb7c82a588abe4dULL;
+  static const uint64_t static_value2 = 0x8862527f49dc8cd4ULL;
 };
 
 template<class ContainerAllocator>
@@ -138,7 +143,8 @@ struct Definition< ::path_planner::GetPointsResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "float32[] points_array\n\
+    return "int32[] points_array\n\
+int32[] shape\n\
 ";
   }
 
@@ -158,6 +164,7 @@ namespace serialization
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
       stream.next(m.points_array);
+      stream.next(m.shape);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -180,7 +187,13 @@ struct Printer< ::path_planner::GetPointsResponse_<ContainerAllocator> >
     for (size_t i = 0; i < v.points_array.size(); ++i)
     {
       s << indent << "  points_array[" << i << "]: ";
-      Printer<float>::stream(s, indent + "  ", v.points_array[i]);
+      Printer<int32_t>::stream(s, indent + "  ", v.points_array[i]);
+    }
+    s << indent << "shape[]" << std::endl;
+    for (size_t i = 0; i < v.shape.size(); ++i)
+    {
+      s << indent << "  shape[" << i << "]: ";
+      Printer<int32_t>::stream(s, indent + "  ", v.shape[i]);
     }
   }
 };
