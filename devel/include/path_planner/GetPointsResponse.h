@@ -35,10 +35,10 @@ struct GetPointsResponse_
 
 
 
-   typedef std::vector<int32_t, typename ContainerAllocator::template rebind<int32_t>::other >  _points_array_type;
+   typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _points_array_type;
   _points_array_type points_array;
 
-   typedef std::vector<int32_t, typename ContainerAllocator::template rebind<int32_t>::other >  _shape_type;
+   typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _shape_type;
   _shape_type shape;
 
 
@@ -119,12 +119,12 @@ struct MD5Sum< ::path_planner::GetPointsResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "deb7c82a588abe4d8862527f49dc8cd4";
+    return "5627a41c994a8a6c1c220d190cfef6d1";
   }
 
   static const char* value(const ::path_planner::GetPointsResponse_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0xdeb7c82a588abe4dULL;
-  static const uint64_t static_value2 = 0x8862527f49dc8cd4ULL;
+  static const uint64_t static_value1 = 0x5627a41c994a8a6cULL;
+  static const uint64_t static_value2 = 0x1c220d190cfef6d1ULL;
 };
 
 template<class ContainerAllocator>
@@ -143,8 +143,8 @@ struct Definition< ::path_planner::GetPointsResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "int32[] points_array\n\
-int32[] shape\n\
+    return "float32[] points_array\n\
+float32[] shape\n\
 ";
   }
 
@@ -187,13 +187,13 @@ struct Printer< ::path_planner::GetPointsResponse_<ContainerAllocator> >
     for (size_t i = 0; i < v.points_array.size(); ++i)
     {
       s << indent << "  points_array[" << i << "]: ";
-      Printer<int32_t>::stream(s, indent + "  ", v.points_array[i]);
+      Printer<float>::stream(s, indent + "  ", v.points_array[i]);
     }
     s << indent << "shape[]" << std::endl;
     for (size_t i = 0; i < v.shape.size(); ++i)
     {
       s << indent << "  shape[" << i << "]: ";
-      Printer<int32_t>::stream(s, indent + "  ", v.shape[i]);
+      Printer<float>::stream(s, indent + "  ", v.shape[i]);
     }
   }
 };

@@ -95,9 +95,9 @@ class GetPointsResponse {
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type GetPointsResponse
     // Serialize message field [points_array]
-    bufferOffset = _arraySerializer.int32(obj.points_array, buffer, bufferOffset, null);
+    bufferOffset = _arraySerializer.float32(obj.points_array, buffer, bufferOffset, null);
     // Serialize message field [shape]
-    bufferOffset = _arraySerializer.int32(obj.shape, buffer, bufferOffset, null);
+    bufferOffset = _arraySerializer.float32(obj.shape, buffer, bufferOffset, null);
     return bufferOffset;
   }
 
@@ -106,9 +106,9 @@ class GetPointsResponse {
     let len;
     let data = new GetPointsResponse(null);
     // Deserialize message field [points_array]
-    data.points_array = _arrayDeserializer.int32(buffer, bufferOffset, null)
+    data.points_array = _arrayDeserializer.float32(buffer, bufferOffset, null)
     // Deserialize message field [shape]
-    data.shape = _arrayDeserializer.int32(buffer, bufferOffset, null)
+    data.shape = _arrayDeserializer.float32(buffer, bufferOffset, null)
     return data;
   }
 
@@ -126,14 +126,14 @@ class GetPointsResponse {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return 'deb7c82a588abe4d8862527f49dc8cd4';
+    return '5627a41c994a8a6c1c220d190cfef6d1';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    int32[] points_array
-    int32[] shape
+    float32[] points_array
+    float32[] shape
     
     `;
   }
@@ -165,6 +165,6 @@ class GetPointsResponse {
 module.exports = {
   Request: GetPointsRequest,
   Response: GetPointsResponse,
-  md5sum() { return 'deb7c82a588abe4d8862527f49dc8cd4'; },
+  md5sum() { return '5627a41c994a8a6c1c220d190cfef6d1'; },
   datatype() { return 'path_planner/GetPoints'; }
 };

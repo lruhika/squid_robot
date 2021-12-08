@@ -105,7 +105,8 @@ def callback(req):
             print(path)
             # path = np.array(path)
             path = [y for x in path for y in x]
-            return [path], np.array(bin_img).shape
+            # import pdb;pdb.set_trace()
+            return np.array(path), np.array(bin_img).shape
 
             # newImage2 = np.zeros_like(res_m)
             # print(newImage.shape)

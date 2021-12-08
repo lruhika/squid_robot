@@ -52,8 +52,8 @@
 (defmethod path_planner::GetPointsResponse
   (:init
    (&key
-    ((:points_array __points_array) (make-array 0 :initial-element 0 :element-type :integer))
-    ((:shape __shape) (make-array 0 :initial-element 0 :element-type :integer))
+    ((:points_array __points_array) (make-array 0 :initial-element 0.0 :element-type :float))
+    ((:shape __shape) (make-array 0 :initial-element 0.0 :element-type :float))
     )
    (send-super :init)
    (setq _points_array __points_array)
@@ -68,42 +68,42 @@
   (:serialization-length
    ()
    (+
-    ;; int32[] _points_array
+    ;; float32[] _points_array
     (* 4    (length _points_array)) 4
-    ;; int32[] _shape
+    ;; float32[] _shape
     (* 4    (length _shape)) 4
     ))
   (:serialize
    (&optional strm)
    (let ((s (if strm strm
               (make-string-output-stream (send self :serialization-length)))))
-     ;; int32[] _points_array
+     ;; float32[] _points_array
      (write-long (length _points_array) s)
      (dotimes (i (length _points_array))
-       (write-long (elt _points_array i) s)
+       (sys::poke (elt _points_array i) (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
        )
-     ;; int32[] _shape
+     ;; float32[] _shape
      (write-long (length _shape) s)
      (dotimes (i (length _shape))
-       (write-long (elt _shape i) s)
+       (sys::poke (elt _shape i) (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
        )
      ;;
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
    (buf &optional (ptr- 0))
-   ;; int32[] _points_array
+   ;; float32[] _points_array
    (let (n)
      (setq n (sys::peek buf ptr- :integer)) (incf ptr- 4)
-     (setq _points_array (instantiate integer-vector n))
+     (setq _points_array (instantiate float-vector n))
      (dotimes (i n)
-     (setf (elt _points_array i) (sys::peek buf ptr- :integer)) (incf ptr- 4)
+     (setf (elt _points_array i) (sys::peek buf ptr- :float)) (incf ptr- 4)
      ))
-   ;; int32[] _shape
+   ;; float32[] _shape
    (let (n)
      (setq n (sys::peek buf ptr- :integer)) (incf ptr- 4)
-     (setq _shape (instantiate integer-vector n))
+     (setq _shape (instantiate float-vector n))
      (dotimes (i n)
-     (setf (elt _shape i) (sys::peek buf ptr- :integer)) (incf ptr- 4)
+     (setf (elt _shape i) (sys::peek buf ptr- :float)) (incf ptr- 4)
      ))
    ;;
    self)
@@ -113,7 +113,7 @@
   :super ros::object
   :slots ())
 
-(setf (get path_planner::GetPoints :md5sum-) "deb7c82a588abe4d8862527f49dc8cd4")
+(setf (get path_planner::GetPoints :md5sum-) "5627a41c994a8a6c1c220d190cfef6d1")
 (setf (get path_planner::GetPoints :datatype-) "path_planner/GetPoints")
 (setf (get path_planner::GetPoints :request) path_planner::GetPointsRequest)
 (setf (get path_planner::GetPoints :response) path_planner::GetPointsResponse)
@@ -121,24 +121,24 @@
 (defmethod path_planner::GetPointsRequest
   (:response () (instance path_planner::GetPointsResponse :init)))
 
-(setf (get path_planner::GetPointsRequest :md5sum-) "deb7c82a588abe4d8862527f49dc8cd4")
+(setf (get path_planner::GetPointsRequest :md5sum-) "5627a41c994a8a6c1c220d190cfef6d1")
 (setf (get path_planner::GetPointsRequest :datatype-) "path_planner/GetPointsRequest")
 (setf (get path_planner::GetPointsRequest :definition-)
       "---
-int32[] points_array
-int32[] shape
+float32[] points_array
+float32[] shape
 ")
 
-(setf (get path_planner::GetPointsResponse :md5sum-) "deb7c82a588abe4d8862527f49dc8cd4")
+(setf (get path_planner::GetPointsResponse :md5sum-) "5627a41c994a8a6c1c220d190cfef6d1")
 (setf (get path_planner::GetPointsResponse :datatype-) "path_planner/GetPointsResponse")
 (setf (get path_planner::GetPointsResponse :definition-)
       "---
-int32[] points_array
-int32[] shape
+float32[] points_array
+float32[] shape
 ")
 
 
 
-(provide :path_planner/GetPoints "deb7c82a588abe4d8862527f49dc8cd4")
+(provide :path_planner/GetPoints "5627a41c994a8a6c1c220d190cfef6d1")
 
 

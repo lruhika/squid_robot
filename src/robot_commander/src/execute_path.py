@@ -9,8 +9,13 @@ import tf2_ros
 import numpy as np
 
 POKE_DEPTH = 0.03   # TODO tune this
-HOVER_Z = -0.05     # TODO tune this MAYBE HOME Z
-HOME_COORD = np.array([0.68506, 0.41719, 0.033956])    # Tuned and tested on 12/3 TODO tune this
+HOVER_Z = 0.0     # TODO tune this MAYBE HOME Z (-0.05)
+# HOME_COORD = np.array([0.68506, 0.41719, 0.033956])    # Tuned and tested on 12/3 TODO tune this
+HOME_COORD = np.array([1.0120748281478882, 0.18082711100578308, 0.0])
+1.0120748281478882
+0.18082711100578308
+0.0
+
 HOME_ORIENTATION = np.array([-0.032689, 0.99945, 0.0049918, 0.0015393])
 group = MoveGroupCommander('left_arm')
 
@@ -131,14 +136,16 @@ def main():
         get_coords = rospy.ServiceProxy('get_coords', GetCoords)
         req_top_left = [top_left.x, top_left.y, top_left.z]
         req_bottom_right = [bottom_right.x, bottom_right.y, bottom_right.z]
-        coords = get_coords(req_top_left, req_bottom_right)
+        coords_response = get_coords(req_top_left, req_bottom_right)
+        coords = np.array(coords_response.coords_array).reshape((-1, 2))
 
         raw_input('Press enter to trace out path without poking.')
         print("execute path line 137\n", coords)
         
-        hover_z = np.tile(HOVER_Z, (len(coords, 1))) # TODO: TypeError: len() takes exactly one argument (2 given)
-        hover_coords = np.append(coords, hover_z)
+        hover_z = np.tile(HOVER_Z, (len(coords), 1))
+        hover_coords = np.block([coords, hover_z])
         for coord in hover_coords:
+            print("coord is", coord)
             request = construct_request(coord)
             while True:
                 try:
@@ -149,7 +156,7 @@ def main():
                     break
                 except rospy.ServiceException as e:
                     # TODO get position of arm
-                    print("Service call failed: " + e)
+                    print(e)
 
         raw_input('Press enter to begin executing poking path.')
         for coord in coords:
@@ -165,7 +172,7 @@ def main():
                         break
                     except rospy.ServiceException as e:
                         # TODO get position of arm
-                        print("Service call failed: " + e)
+                        print(e)
 
         print('Image poked out!')
 
