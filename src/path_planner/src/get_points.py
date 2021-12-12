@@ -100,10 +100,17 @@ def callback(req):
             print('image tuned!')
             #print(res_m[0])
             print(res_m.shape)
+            # res_m = np.flip(res_m, axis=0)
+            # res_m = np.flip(res_m)
             bin_img, path = process_img.process(res_m)
+            # cv2.imshow('cropped',cropped)
             #print(bin_img)
+            process_img.print_img(bin_img, path)
             print(path)
-            return path
+            # path = np.array(path)
+            path = [y for x in path for y in x]
+            # import pdb;pdb.set_trace()
+            return np.array(path), np.array(bin_img).shape
 
             # newImage2 = np.zeros_like(res_m)
             # print(newImage.shape)

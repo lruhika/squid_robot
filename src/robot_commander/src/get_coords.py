@@ -14,16 +14,23 @@ def callback(req):
     try:
         get_points = rospy.ServiceProxy('get_points', GetPoints)
         response = get_points()
-        print(response)
+        print("get coords line 17\n", response)
 
-        points = response.points_array
-        shape = points[0] # first element in the list is the shape of the img
-        points = points[1:]
+        points = np.array(response.points_array).reshape((-1, 2))
+        shape = response.shape
 
-        coords = np.empty(len(points))
-        coords[:, 0] = (points[:, 0] / shape[0]) * width + top_left[0]       # TODO not sure if this is right
-        coords[:, 1] = (points[:, 1] / shape[1])* height + bottom_right[1]  # TODO not sure if this is right
-        return coords
+        coords = np.empty(points.shape)
+        # coords[:, 0] = ((points[:, 0] / shape[0]) * width + bottom_right[0] - 0.06)
+        # coords[:, 1] = (points[:, 1] / shape[1]) * height - bottom_right[1]
+        # points[:, 0] = shape[0] - points[:, 0]
+        # coords[:, 0] = (points[:, 0] / shape[0]) * width + bottom_right[0] - 0.06
+        # coords[:, 1] = (points[:, 1] / shape[1]) * height - bottom_right[1]
+        coords[:, 0] = (points[:, 0] / shape[0]) * width + bottom_right[0]
+        coords[:, 1] = (points[:, 1] / shape[1]) * height + bottom_right[1]
+        print("bottom_right: ", bottom_right)
+        
+        print("coords type: ", type(coords), "coords: ", coords)
+        return [coords.flatten()]
     except rospy.ServiceException as e:
         print(e)
         return []

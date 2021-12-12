@@ -40,7 +40,7 @@ template<>
 struct MD5Sum< ::path_planner::GetPoints > {
   static const char* value()
   {
-    return "726e62144bd80158a62de6337dc76b64";
+    return "5627a41c994a8a6c1c220d190cfef6d1";
   }
 
   static const char* value(const ::path_planner::GetPoints&) { return value(); }
