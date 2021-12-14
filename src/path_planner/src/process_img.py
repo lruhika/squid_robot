@@ -58,8 +58,9 @@ def print_img(img, path = [], poke_further_path = []):
                     line += " "
                 else:
                     line += "-"
-            print(line + "\n")
-
+            if not line.isspace():
+                print(line + "\n")
+                
         sys.stdout = original_stdout
 
 # from the original process_img.py
@@ -125,13 +126,16 @@ def is_corner_color(px):
     return is_red(px)
 
 def poke_further_color(px):
-    return is_blue(px)
+    return is_green(px)
 
 def is_red(px):
     return px[2] > px[1] and px[2] > px[0] and px[2] > 30
 
 def is_blue(px):
     return px[0] > px[1] and px[0] > px[2] and px[0] > 30
+
+def is_green(px):
+    return px[1] > px[0] and px[1] > px[2] and px[1] > 30
 
 def process(img, img_buffer=10):
     # img = blur(img)
