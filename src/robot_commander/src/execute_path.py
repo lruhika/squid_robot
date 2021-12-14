@@ -105,11 +105,6 @@ class Executor():
         request.ik_request.pose_stamped.pose.orientation.w = orientation[3]
 
         return request
-
-    def main(self):
-        redo = True
-        while redo == True:
-            redo = self.execute()
     
     def mark_poked(self, coord):
         x = coord[0]
@@ -124,7 +119,7 @@ class Executor():
         in_poked_ranges = np.array([True if x > r[0] and x < r[1] and y > r[2] and y < r[3] else False for r in self.poked_ranges])
         return any(in_poked_ranges)
 
-    def execute(self):
+    def do_pokes(self):
         while not rospy.is_shutdown():
             raw_input('Press enter to go home.')
             self.do_ik(self.home_coord)
@@ -194,6 +189,10 @@ class Executor():
                 print('Image poked out!')
                 return False
 
+    def main(self):
+        redo = True
+        while redo == True:
+            redo = self.do_pokes()
 
 if __name__ == '__main__':
     executor = Executor()
