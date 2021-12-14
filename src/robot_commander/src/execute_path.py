@@ -27,6 +27,8 @@ class Executor():
         self.hover_z = 0.02
         self.poke_depth = 0.1
         self.group = MoveGroupCommander('left_arm')
+        self.redo_buffer = 0.01
+        self.poked_ranges = []
 
 
     def coord_to_poke(self, coord):
@@ -104,8 +106,25 @@ class Executor():
 
         return request
 
-
     def main(self):
+        redo = True
+        while redo == True:
+            redo = self.execute()
+    
+    def mark_poked(self, coord):
+        x = coord[0]
+        y = coord[1]
+        range = [x - self.redo_buffer, x + self.redo_buffer, y - self.redo_buffer, y + self.redo_buffer]
+        self.poked_ranges.append(range)
+        return
+
+    def has_been_poked(self, coord):
+        x = coord[0]
+        y = coord[1]
+        in_poked_ranges = np.array([True if x > r[0] and x < r[1] and y > r[2] and y < r[3] else False for r in self.poked_ranges])
+        return any(in_poked_ranges)
+
+    def execute(self):
         while not rospy.is_shutdown():
             raw_input('Press enter to go home.')
             self.do_ik(self.home_coord)
@@ -151,16 +170,29 @@ class Executor():
             hover_z = np.tile(self.hover_z, (len(coords), 1))
             hover_coords = np.block([coords, hover_z])
             for coord in hover_coords:
-                self.do_ik(coord)
+                if self.has_been_poked(coord):
+                    continue
+                else:
+                    self.mark_poked(coord)
+                    self.do_ik(coord)
 
             raw_input('Press enter to begin executing poking path.')
             for coord in coords:
                 start, poke, end = self.coord_to_poke(coord)
                 for destination in [start, poke, end]:
-                    self.do_ik(destination)
-                    rospy.sleep(1)
+                    if self.has_been_poked(destination):
+                        continue
+                    else:
+                        self.do_ik(destination)
+                        rospy.sleep(1)
+            print('Done!')
 
-            print('Image poked out!')
+            redo = raw_input("Do you want to poke out a newly added path? (y/n)")
+            if redo == "y":
+                return True
+            else:
+                print('Image poked out!')
+                return False
 
 
 if __name__ == '__main__':
