@@ -1,3 +1,4 @@
 ---
 float32[] points_array
+float32[] poke_further_points_array
 float32[] shape

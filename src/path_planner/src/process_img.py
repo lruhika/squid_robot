@@ -23,6 +23,7 @@ def find_next_unvisited(unvisited, start_r):
 # Given image in the form of a boolean 2D array, return an ordered list coordinates to visit and poke
 def img_to_path(img, img_buffer=10):
     path = []
+    poke_further_path = []
     unvisited = np.copy(img)
     start_r = 0
 
@@ -31,13 +32,16 @@ def img_to_path(img, img_buffer=10):
         if not nxt:
             break
         unvisited = visit(unvisited, nxt, img_buffer)
-        path.append(nxt)
+        if img[nxt[0]][nxt[1]] == 2:
+            poke_further_path.append(nxt)
+        else:
+            path.append(nxt)
         start_r, _ = nxt
 
     # TODO: sort by column within each line?
-    return path
+    return path, poke_further_path
 
-def print_img(img, path = []):
+def print_img(img, path = [], poke_further_path = []):
     original_stdout = sys.stdout
     with open('printed_path.txt', 'w') as f:
         sys.stdout = f
@@ -46,8 +50,10 @@ def print_img(img, path = []):
             line = ''
             for c in range(len(img[r])):
                 px = img[r][c]
-                if (r, c) in path:
+                if [r, c] in path:
                     line += "*"
+                elif [r, c] in poke_further_path:
+                    line += "#"
                 elif px == 0:
                     line += " "
                 else:
@@ -63,7 +69,10 @@ def make_binary(img):
         for c in range(len(img[r])):
             px = img[r][c]
             if sum(px) != 0 and not is_corner_color(px):
-                cp[r][c] = 1
+                if poke_further_color(px):
+                    cp[r][c] = 2
+                else:
+                    cp[r][c] = 1
             else:
                 cp[r][c] = 0
     return cp
@@ -115,6 +124,9 @@ def crop_corners(img):
 def is_corner_color(px):
     return is_red(px)
 
+def poke_further_color(px):
+    return is_blue(px)
+
 def is_red(px):
     return px[2] > px[1] and px[2] > px[0] and px[2] > 30
 
@@ -124,12 +136,12 @@ def is_blue(px):
 def process(img, img_buffer=10):
     # img = blur(img)
     img = crop_corners(img)
-    print('line 120 process_img.py not happening')
     # import pdb;pdb.set_trace()
     bin_img = make_binary(img)
-    if len(bin_img) < 1 or len(bin_img[0]) < 1:
-        import pdb;pdb.set_trace()
-    return bin_img, img_to_path(bin_img, img_buffer)
+    # if len(bin_img) < 1 or len(bin_img[0]) < 1:
+    #     import pdb;pdb.set_trace()
+    path, poke_further_path = img_to_path(bin_img, img_buffer)
+    return bin_img, path, poke_further_path
 
 # testing
 if __name__ == '__main__':
