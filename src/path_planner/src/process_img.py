@@ -58,8 +58,9 @@ def print_img(img, path = [], poke_further_path = []):
                     line += " "
                 else:
                     line += "-"
-            print(line + "\n")
-
+            if not line.isspace():
+                print(line + "\n")
+                
         sys.stdout = original_stdout
 
 # from the original process_img.py
