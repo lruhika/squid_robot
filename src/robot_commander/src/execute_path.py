@@ -23,7 +23,7 @@ class Executor():
         self.left = baxter_interface.Limb('left')
         self.tfBuffer = tf2_ros.Buffer()
         tfListener = tf2_ros.TransformListener(self.tfBuffer)
-        self.home_coord = np.array([0.8, 0.18, 0.18])
+        self.home_coord = np.array([0.6, 0.18, 0.18])
         self.hover_z = 0.02
         self.poke_depth = 0.1
         self.group = MoveGroupCommander('left_arm')

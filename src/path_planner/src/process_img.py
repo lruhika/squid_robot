@@ -124,8 +124,6 @@ def is_blue(px):
 def process(img, img_buffer=10):
     # img = blur(img)
     img = crop_corners(img)
-    print('line 120 process_img.py not happening')
-    # import pdb;pdb.set_trace()
     bin_img = make_binary(img)
     if len(bin_img) < 1 or len(bin_img[0]) < 1:
         import pdb;pdb.set_trace()
