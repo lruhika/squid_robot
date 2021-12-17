@@ -40,4 +40,7 @@ After getting points of interest using the camera we need to create a path that 
 The final step is to actually move the robot to the set of coordinates. To do this we use an IK solver to solve the inverse kinematic problem for each coordinates. After this we use the MoveIt command to move the robot to move to coordinates of interest. All this implementation happens in the **robot_commander** package's **execute_path.py** node. 
 
 
+
+![Pipeline](node.png)
+
 ###End
