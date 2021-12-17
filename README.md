@@ -35,5 +35,9 @@ Once we have points of interest we acquire corner coordimates. To get the coordi
 
 After getting points of interest using the camera we need to create a path that the robot needs to visit. We have points to visit from the sensing part of the process. These points correspond to pixels and not coordinates. So to get coordinates of interest we pass coordinates of the corner of the image from the **robot_commander** package's **execute_path.py** node. Makng use of the corner coordinate and the path pixels. We convert the points of interest to coordinates of interest.  This process is done in the **path_planner** package's **get_coord.py** node. 
 
+## Actuatiion
+
+The final step is to actually move the robot to the set of coordinates. To do this we use an IK solver to solve the inverse kinematic problem for each coordinates. After this we use the MoveIt command to move the robot to move to coordinates of interest. All this implementation happens in the **robot_commander** package's **execute_path.py** node. 
+
 
 ###End
