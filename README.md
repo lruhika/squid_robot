@@ -41,6 +41,6 @@ The final step is to actually move the robot to the set of coordinates. To do th
 
 
 
-![Pipeline](node.png)
+![node](node.jpg)
 
 ###End
