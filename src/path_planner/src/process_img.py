@@ -21,7 +21,7 @@ def find_next_unvisited(unvisited, start_r):
     return None
 
 # Given image in the form of a boolean 2D array, return an ordered list coordinates to visit and poke
-def img_to_path(img, img_buffer=10):
+def img_to_path(img, img_buffer=5):
     path = []
     poke_further_path = []
     unvisited = np.copy(img)
@@ -109,18 +109,15 @@ def crop_corners(img):
                 corners.append([r, c])
     corners = np.array(corners)
     if len(corners) != 2:
-        # top_left_blob = corners[corners[:, 1] < rows / 2]
-        # top_left_blob = top_left_blob[top_left_blob[:, 0] < cols / 2]
-        # bottom_right_blob = corners[corners[:, 1] > rows / 2]
-        # bottom_right_blob = bottom_right_blob[bottom_right_blob[:, 0] > cols / 2]
-        # corners = [top_left_blob[0], bottom_right_blob[-1]]
-        # corners = [top_left_blob.mean(axis=0).astype('int'),
-        #             bottom_right_blob.mean(axis=0).astype('int')]
-        corners = [corners[0], corners[-1]]
+        top_left_blob = corners[corners[:, 0] < rows / 2]
+        bottom_right_blob = corners[corners[:, 0] > rows / 2]
+        corners = [top_left_blob.mean(axis=0).astype('int'), bottom_right_blob.mean(axis=0).astype('int')]
+        
     top_left, bottom_right = corners[0], corners[1]
     img = np.array(img)
     print("CORNERS ARE HERE: ", corners)
     return img[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1]]
+
 
 def is_corner_color(px):
     return is_red(px)
@@ -140,10 +137,7 @@ def is_green(px):
 def process(img, img_buffer=10):
     # img = blur(img)
     img = crop_corners(img)
-    # import pdb;pdb.set_trace()
     bin_img = make_binary(img)
-    # if len(bin_img) < 1 or len(bin_img[0]) < 1:
-    #     import pdb;pdb.set_trace()
     path, poke_further_path = img_to_path(bin_img, img_buffer)
     return bin_img, path, poke_further_path
 

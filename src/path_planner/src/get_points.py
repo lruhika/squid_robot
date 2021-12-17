@@ -102,10 +102,8 @@ def callback(req):
             bin_img, path, poke_further_path = process_img.process(res_m)
             process_img.print_img(bin_img, path)
             print(path)
-            # path = np.array(path)
             path = flatten(path)
             poke_further_path = flatten(poke_further_path)
-            # import pdb;pdb.set_trace()
             return np.array(path), np.array(poke_further_path), np.array(bin_img).shape
 
 def flatten(lst):

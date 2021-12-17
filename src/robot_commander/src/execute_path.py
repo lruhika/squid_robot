@@ -4,6 +4,7 @@ from baxter_forward_kinematics import *
 import baxter_interface
 from baxter_interface import gripper as robot_gripper
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
+from moveit_msgs.msg import OrientationConstraint, Constraints
 from trac_ik_python.trac_ik import IK
 from robot_commander.srv import GetCoords
 from moveit_commander import MoveGroupCommander
@@ -23,16 +24,32 @@ class Executor():
         self.left = baxter_interface.Limb('left')
         self.tfBuffer = tf2_ros.Buffer()
         tfListener = tf2_ros.TransformListener(self.tfBuffer)
-        self.home_coord = np.array([0.8, 0.18, 0.18])
-        self.hover_z = 0.02
-        self.poke_depth = 0.1
+        self.home_coord = np.array([0.6, 0.18, 0.18])
+        self.hover_z = -0.08
+        self.poke_depth = 0.08
+        self.poke_x_offset = 0.02
         self.group = MoveGroupCommander('left_arm')
+
+
+    def get_constraint(self):
+        orien_const = OrientationConstraint()
+        orien_const.link_name = 'left_gripper'
+        orien_const.header.frame_id = 'base'
+        orien_const.orientation.y = 1.0
+        orien_const.absolute_x_axis_tolerance = 0.1
+        orien_const.absolute_y_axis_tolerance = 0.1
+        orien_const.absolute_z_axis_tolerance = 0.1
+        orien_const.weight = 1.0
+
+        constraints = Constraints()
+        constraints.orientation_constraints = [orien_const]
+        return constraints
 
 
     def coord_to_poke(self, coord):
         coord = np.append(coord, self.hover_z)
         start_coord, end_coord = coord, coord
-        poke_coord = coord - np.array([0, 0, self.poke_depth])
+        poke_coord = coord - np.array([self.poke_x_offset, 0, self.poke_depth])
         return start_coord, poke_coord, end_coord
 
 
@@ -61,9 +78,9 @@ class Executor():
             print(e)
 
 
-    def do_ik(self, coord):
+    def do_ik(self, coord, constrain=False):
         print('COORD IS', coord)
-        if coord[2] > 1 or coord[2] < -0.12:
+        if coord[2] > 1 or coord[2] < -0.2:
             print('GOOD TRY NO SOLUTION')
             return 'failed'
         request = self.construct_request(coord)
@@ -77,6 +94,9 @@ class Executor():
                         response = self.compute_ik(request)
                     i += 1
                 self.group.set_pose_target(request.ik_request.pose_stamped)
+                if constrain:
+                    constraint = self.get_constraint()
+                    self.group.set_path_constraints(constraint)
                 self.group.go()
                 break
             except rospy.ServiceException as e:
@@ -93,9 +113,6 @@ class Executor():
         request.ik_request.pose_stamped.pose.position.x = coord[0]
         request.ik_request.pose_stamped.pose.position.y = coord[1]
         request.ik_request.pose_stamped.pose.position.z = coord[2]
-        # print(request.ik_request.pose_stamped.pose.position.x)
-        # print(request.ik_request.pose_stamped.pose.position.y)
-        # print(request.ik_request.pose_stamped.pose.position.z)
         
         request.ik_request.pose_stamped.pose.orientation.x = orientation[0]
         request.ik_request.pose_stamped.pose.orientation.y = orientation[1]
@@ -110,13 +127,6 @@ class Executor():
             raw_input('Press enter to go home.')
             self.do_ik(self.home_coord)
 
-            # left_gripper = robot_gripper.Gripper('left')
-            # print('Calibrating and opening gripper...')
-            # left_gripper.calibrate()
-            # rospy.sleep(1.0)
-            # left_gripper.open()
-            # rospy.sleep(1.0)
-            
             raw_input('Press enter to begin corner calibration.')
             corner_transforms = {}
             for name in ["top left", "bottom right"]:
@@ -146,17 +156,17 @@ class Executor():
             coords = np.array(coords_response.coords_array).reshape((-1, 2))
 
             raw_input('Press enter to trace out path without poking.')
-            print("execute path line 140\n", coords)
             
             hover_z = np.tile(self.hover_z, (len(coords), 1))
             hover_coords = np.block([coords, hover_z])
             for coord in hover_coords:
                 self.do_ik(coord)
 
+            self.do_ik(coord + np.array([0, 0, 4 * self.poke_depth]))
             raw_input('Press enter to begin executing poking path.')
             for coord in coords:
                 start, poke, end = self.coord_to_poke(coord)
-                for destination in [start, poke, end]:
+                for i, destination in enumerate([start, poke, end]):
                     self.do_ik(destination)
                     rospy.sleep(1)
 
