@@ -176,10 +176,16 @@ class Executor():
             coords = np.array(coords_response.coords_array).reshape((-1, 2))
             poke_further_coords = np.array(coords_response.poke_further_coords_array).reshape((-1, 2))
 
+            coords = np.block([coords, False])
+            poke_further_coords = np.block([coords, True])
+            coords = np.concatenate((coords, poke_further_coords), axis=0)
+            coords = sorted(coords, key=lambda c: c[0])
+
             raw_input('Press enter to trace out path without poking.')
             hover_z = np.tile(self.hover_z, (len(coords), 1))
             hover_coords = np.block([coords, hover_z])
             for coord in hover_coords:
+                coord = coord[:3]
                 self.do_ik(coord)
 
             manual_offset = raw_input("If needed, enter a manual offset in the form x y: ").split(" ")
@@ -189,7 +195,9 @@ class Executor():
             self.do_ik(coord + np.array([0, 0, 2 * self.shallow_poke_depth]))
             raw_input('Press enter to begin executing poking path.')
             for coord in coords:
-                start, hover, poke, end = self.coord_to_poke(coord)
+                is_deeper = coord[-1]
+                coord = coord[:3]
+                start, hover, poke, end = self.coord_to_poke(coord, is_deeper=is_deeper)
                 for i, destination in enumerate([start, hover, poke, end]):
                     self.do_ik(destination - np.array([man_x_off, man_y_off, 0]))
                     if i == 1:
@@ -199,19 +207,19 @@ class Executor():
 
             print('Image poked out!')
 
-            raw_input('Press enter to trace out deeper path without poking.')
-            pf_hover_z = np.tile(self.hover_z, (len(poke_further_coords), 1))
-            pf_hover_coords = np.block([poke_further_coords, pf_hover_z])
-            for coord in pf_hover_coords:
-                self.do_ik(coord)
+            # raw_input('Press enter to trace out deeper path without poking.')
+            # pf_hover_z = np.tile(self.hover_z, (len(poke_further_coords), 1))
+            # pf_hover_coords = np.block([poke_further_coords, pf_hover_z])
+            # for coord in pf_hover_coords:
+            #     self.do_ik(coord)
             
-            self.do_ik(coord + np.array([0, 0, 4 * self.poke_depth])) # todo: what is this for?
-            raw_input('Press enter to begin executing deeper poking path.')
-            for coord in poke_further_coords:
-                start, poke, end = self.coord_to_poke(coord, is_deeper=True)
-                for i, destination in enumerate([start, poke, end]):
-                    self.do_ik(destination)
-                    rospy.sleep(1)
+            # self.do_ik(coord + np.array([0, 0, 4 * self.poke_depth])) # todo: what is this for?
+            # raw_input('Press enter to begin executing deeper poking path.')
+            # for coord in poke_further_coords:
+            #     start, poke, end = self.coord_to_poke(coord, is_deeper=True)
+            #     for i, destination in enumerate([start, poke, end]):
+            #         self.do_ik(destination)
+            #         rospy.sleep(1)
 
 
 if __name__ == '__main__':
