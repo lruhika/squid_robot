@@ -25,10 +25,12 @@ struct GetPointsResponse_
 
   GetPointsResponse_()
     : points_array()
+    , poke_further_points_array()
     , shape()  {
     }
   GetPointsResponse_(const ContainerAllocator& _alloc)
     : points_array(_alloc)
+    , poke_further_points_array(_alloc)
     , shape(_alloc)  {
   (void)_alloc;
     }
@@ -37,6 +39,9 @@ struct GetPointsResponse_
 
    typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _points_array_type;
   _points_array_type points_array;
+
+   typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _poke_further_points_array_type;
+  _poke_further_points_array_type poke_further_points_array;
 
    typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _shape_type;
   _shape_type shape;
@@ -119,12 +124,12 @@ struct MD5Sum< ::path_planner::GetPointsResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "5627a41c994a8a6c1c220d190cfef6d1";
+    return "37d9a86923a6c69a3912b000f406889e";
   }
 
   static const char* value(const ::path_planner::GetPointsResponse_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x5627a41c994a8a6cULL;
-  static const uint64_t static_value2 = 0x1c220d190cfef6d1ULL;
+  static const uint64_t static_value1 = 0x37d9a86923a6c69aULL;
+  static const uint64_t static_value2 = 0x3912b000f406889eULL;
 };
 
 template<class ContainerAllocator>
@@ -144,6 +149,7 @@ struct Definition< ::path_planner::GetPointsResponse_<ContainerAllocator> >
   static const char* value()
   {
     return "float32[] points_array\n\
+float32[] poke_further_points_array\n\
 float32[] shape\n\
 ";
   }
@@ -164,6 +170,7 @@ namespace serialization
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
       stream.next(m.points_array);
+      stream.next(m.poke_further_points_array);
       stream.next(m.shape);
     }
 
@@ -188,6 +195,12 @@ struct Printer< ::path_planner::GetPointsResponse_<ContainerAllocator> >
     {
       s << indent << "  points_array[" << i << "]: ";
       Printer<float>::stream(s, indent + "  ", v.points_array[i]);
+    }
+    s << indent << "poke_further_points_array[]" << std::endl;
+    for (size_t i = 0; i < v.poke_further_points_array.size(); ++i)
+    {
+      s << indent << "  poke_further_points_array[" << i << "]: ";
+      Printer<float>::stream(s, indent + "  ", v.poke_further_points_array[i]);
     }
     s << indent << "shape[]" << std::endl;
     for (size_t i = 0; i < v.shape.size(); ++i)

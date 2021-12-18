@@ -1,2 +1,2 @@
-path_planner:robot_commander
+path_planner:robot_commander:trac_ik/trac_ik:trac_ik/trac_ik_examples:trac_ik/trac_ik_kinematics_plugin:trac_ik/trac_ik_lib:trac_ik/trac_ik_python
 -DCATKIN_DEVEL_PREFIX=/home/cc/ee106a/fl21/class/ee106a-aet/ros_workspaces/final_project/devel -DCMAKE_INSTALL_PREFIX=/home/cc/ee106a/fl21/class/ee106a-aet/ros_workspaces/final_project/install -G Unix Makefiles
