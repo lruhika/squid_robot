@@ -115,6 +115,7 @@ class GetCoordsResponse {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
       this.coords_array = null;
+      this.poke_further_coords_array = null;
     }
     else {
       if (initObj.hasOwnProperty('coords_array')) {
@@ -123,6 +124,12 @@ class GetCoordsResponse {
       else {
         this.coords_array = [];
       }
+      if (initObj.hasOwnProperty('poke_further_coords_array')) {
+        this.poke_further_coords_array = initObj.poke_further_coords_array
+      }
+      else {
+        this.poke_further_coords_array = [];
+      }
     }
   }
 
@@ -130,6 +137,8 @@ class GetCoordsResponse {
     // Serializes a message object of type GetCoordsResponse
     // Serialize message field [coords_array]
     bufferOffset = _arraySerializer.float32(obj.coords_array, buffer, bufferOffset, null);
+    // Serialize message field [poke_further_coords_array]
+    bufferOffset = _arraySerializer.float32(obj.poke_further_coords_array, buffer, bufferOffset, null);
     return bufferOffset;
   }
 
@@ -139,13 +148,16 @@ class GetCoordsResponse {
     let data = new GetCoordsResponse(null);
     // Deserialize message field [coords_array]
     data.coords_array = _arrayDeserializer.float32(buffer, bufferOffset, null)
+    // Deserialize message field [poke_further_coords_array]
+    data.poke_further_coords_array = _arrayDeserializer.float32(buffer, bufferOffset, null)
     return data;
   }
 
   static getMessageSize(object) {
     let length = 0;
     length += 4 * object.coords_array.length;
-    return length + 4;
+    length += 4 * object.poke_further_coords_array.length;
+    return length + 8;
   }
 
   static datatype() {
@@ -155,13 +167,14 @@ class GetCoordsResponse {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '23977c619124dc561fdfab0c5e59985a';
+    return '6bdc879a37dd766a62c0bf088cdd4729';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
     float32[] coords_array
+    float32[] poke_further_coords_array
     
     
     `;
@@ -180,6 +193,13 @@ class GetCoordsResponse {
       resolved.coords_array = []
     }
 
+    if (msg.poke_further_coords_array !== undefined) {
+      resolved.poke_further_coords_array = msg.poke_further_coords_array;
+    }
+    else {
+      resolved.poke_further_coords_array = []
+    }
+
     return resolved;
     }
 };
@@ -187,6 +207,6 @@ class GetCoordsResponse {
 module.exports = {
   Request: GetCoordsRequest,
   Response: GetCoordsResponse,
-  md5sum() { return '5fda44d5b45a78ce5dc124b63492459c'; },
+  md5sum() { return '15ec566a7dce235e6b6c3180712c105f'; },
   datatype() { return 'robot_commander/GetCoords'; }
 };

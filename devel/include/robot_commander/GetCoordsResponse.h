@@ -24,10 +24,12 @@ struct GetCoordsResponse_
   typedef GetCoordsResponse_<ContainerAllocator> Type;
 
   GetCoordsResponse_()
-    : coords_array()  {
+    : coords_array()
+    , poke_further_coords_array()  {
     }
   GetCoordsResponse_(const ContainerAllocator& _alloc)
-    : coords_array(_alloc)  {
+    : coords_array(_alloc)
+    , poke_further_coords_array(_alloc)  {
   (void)_alloc;
     }
 
@@ -35,6 +37,9 @@ struct GetCoordsResponse_
 
    typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _coords_array_type;
   _coords_array_type coords_array;
+
+   typedef std::vector<float, typename ContainerAllocator::template rebind<float>::other >  _poke_further_coords_array_type;
+  _poke_further_coords_array_type poke_further_coords_array;
 
 
 
@@ -114,12 +119,12 @@ struct MD5Sum< ::robot_commander::GetCoordsResponse_<ContainerAllocator> >
 {
   static const char* value()
   {
-    return "23977c619124dc561fdfab0c5e59985a";
+    return "6bdc879a37dd766a62c0bf088cdd4729";
   }
 
   static const char* value(const ::robot_commander::GetCoordsResponse_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x23977c619124dc56ULL;
-  static const uint64_t static_value2 = 0x1fdfab0c5e59985aULL;
+  static const uint64_t static_value1 = 0x6bdc879a37dd766aULL;
+  static const uint64_t static_value2 = 0x62c0bf088cdd4729ULL;
 };
 
 template<class ContainerAllocator>
@@ -139,6 +144,7 @@ struct Definition< ::robot_commander::GetCoordsResponse_<ContainerAllocator> >
   static const char* value()
   {
     return "float32[] coords_array\n\
+float32[] poke_further_coords_array\n\
 \n\
 ";
   }
@@ -159,6 +165,7 @@ namespace serialization
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
       stream.next(m.coords_array);
+      stream.next(m.poke_further_coords_array);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -182,6 +189,12 @@ struct Printer< ::robot_commander::GetCoordsResponse_<ContainerAllocator> >
     {
       s << indent << "  coords_array[" << i << "]: ";
       Printer<float>::stream(s, indent + "  ", v.coords_array[i]);
+    }
+    s << indent << "poke_further_coords_array[]" << std::endl;
+    for (size_t i = 0; i < v.poke_further_coords_array.size(); ++i)
+    {
+      s << indent << "  poke_further_coords_array[" << i << "]: ";
+      Printer<float>::stream(s, indent + "  ", v.poke_further_coords_array[i]);
     }
   }
 };

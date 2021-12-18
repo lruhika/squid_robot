@@ -5,4 +5,6 @@
           BOTTOM_RIGHT
           COORDS_ARRAY-VAL
           COORDS_ARRAY
+          POKE_FURTHER_COORDS_ARRAY-VAL
+          POKE_FURTHER_COORDS_ARRAY
 ))

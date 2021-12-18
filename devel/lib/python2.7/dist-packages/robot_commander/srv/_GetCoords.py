@@ -155,14 +155,15 @@ import struct
 
 
 class GetCoordsResponse(genpy.Message):
-  _md5sum = "23977c619124dc561fdfab0c5e59985a"
+  _md5sum = "6bdc879a37dd766a62c0bf088cdd4729"
   _type = "robot_commander/GetCoordsResponse"
   _has_header = False  # flag to mark the presence of a Header object
   _full_text = """float32[] coords_array
+float32[] poke_further_coords_array
 
 """
-  __slots__ = ['coords_array']
-  _slot_types = ['float32[]']
+  __slots__ = ['coords_array','poke_further_coords_array']
+  _slot_types = ['float32[]','float32[]']
 
   def __init__(self, *args, **kwds):
     """
@@ -172,7 +173,7 @@ class GetCoordsResponse(genpy.Message):
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       coords_array
+       coords_array,poke_further_coords_array
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -183,8 +184,11 @@ class GetCoordsResponse(genpy.Message):
       # message fields cannot be None, assign default values for those that are
       if self.coords_array is None:
         self.coords_array = []
+      if self.poke_further_coords_array is None:
+        self.poke_further_coords_array = []
     else:
       self.coords_array = []
+      self.poke_further_coords_array = []
 
   def _get_types(self):
     """
@@ -202,6 +206,10 @@ class GetCoordsResponse(genpy.Message):
       buff.write(_struct_I.pack(length))
       pattern = '<%sf'%length
       buff.write(struct.Struct(pattern).pack(*self.coords_array))
+      length = len(self.poke_further_coords_array)
+      buff.write(_struct_I.pack(length))
+      pattern = '<%sf'%length
+      buff.write(struct.Struct(pattern).pack(*self.poke_further_coords_array))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -221,6 +229,14 @@ class GetCoordsResponse(genpy.Message):
       s = struct.Struct(pattern)
       end += s.size
       self.coords_array = s.unpack(str[start:end])
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      pattern = '<%sf'%length
+      start = end
+      s = struct.Struct(pattern)
+      end += s.size
+      self.poke_further_coords_array = s.unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -237,6 +253,10 @@ class GetCoordsResponse(genpy.Message):
       buff.write(_struct_I.pack(length))
       pattern = '<%sf'%length
       buff.write(self.coords_array.tostring())
+      length = len(self.poke_further_coords_array)
+      buff.write(_struct_I.pack(length))
+      pattern = '<%sf'%length
+      buff.write(self.poke_further_coords_array.tostring())
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -257,6 +277,14 @@ class GetCoordsResponse(genpy.Message):
       s = struct.Struct(pattern)
       end += s.size
       self.coords_array = numpy.frombuffer(str[start:end], dtype=numpy.float32, count=length)
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      pattern = '<%sf'%length
+      start = end
+      s = struct.Struct(pattern)
+      end += s.size
+      self.poke_further_coords_array = numpy.frombuffer(str[start:end], dtype=numpy.float32, count=length)
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -267,6 +295,6 @@ def _get_struct_I():
     return _struct_I
 class GetCoords(object):
   _type          = 'robot_commander/GetCoords'
-  _md5sum = '5fda44d5b45a78ce5dc124b63492459c'
+  _md5sum = '15ec566a7dce235e6b6c3180712c105f'
   _request_class  = GetCoordsRequest
   _response_class = GetCoordsResponse

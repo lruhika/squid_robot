@@ -133,7 +133,8 @@ def is_blue(px):
     return px[0] > px[1] and px[0] > px[2] and px[0] > 30
 
 def is_green(px):
-    return px[1] > px[0] and px[1] > px[2] and px[1] > 30
+    # return px[1] > px[0] and px[1] > px[2] and px[1] > 30
+    return px[1] > px[2] and px[1] > 60
 
 def process(img, img_buffer=10):
     # img = blur(img)

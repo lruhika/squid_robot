@@ -67,7 +67,7 @@ def callback(req):
         print("bottom_right: ", bottom_right)
         
         print("coords type: ", type(coords), "coords: ", coords)
-        return [coords.flatten()], [poke_further_coords.flatten()]
+        return [coords.flatten(), poke_further_coords.flatten()]
     except rospy.ServiceException as e:
         print(e)
         return [], []
