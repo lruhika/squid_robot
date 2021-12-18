@@ -100,7 +100,7 @@ def callback(req):
             print('image tuned!')
             print(res_m.shape)
             bin_img, path, poke_further_path = process_img.process(res_m)
-            process_img.print_img(bin_img, path)
+            process_img.print_img(bin_img, path, poke_further_path)
             print(path)
             path = flatten(path)
             poke_further_path = flatten(poke_further_path)

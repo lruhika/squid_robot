@@ -6,6 +6,28 @@ import numpy as np
 
 CLOSE_RADIUS = 0.05
 
+def make_coords_array(points_array, shape, height, width, bottom_right, top_left):
+    points = np.array(points_array).reshape((-1, 2))
+    shape = shape
+
+    coords1 = np.empty(points.shape)
+    coords1[:, 0] = ((shape[0] - points[:, 0]) / shape[0]) * height + bottom_right[0]
+    coords1[:, 1] = ((shape[1] - points[:, 1]) / shape[1]) * width - bottom_right[1]
+
+    coords2 = np.empty(points.shape)
+    coords2[:, 0] = -points[:, 0] / shape[0] * height + top_left[0]
+    coords2[:, 1] = -points[:, 1] / shape[1] * width - top_left[1]
+
+    coords = (coords1 + coords2) / 2
+
+    filtered_coords = []
+    for point in coords:
+        close_x = np.logical_and(coords[:, 0] < point[0] + CLOSE_RADIUS, coords[:, 0] > point[0] - CLOSE_RADIUS)
+        close_y = np.logical_and(coords[:, 1] < point[1] + CLOSE_RADIUS, coords[:, 1] > point[1] - CLOSE_RADIUS)
+        if np.logical_or(close_x, close_y).sum() > 1:
+            filtered_coords.append(point)
+    coords = np.array(filtered_coords)
+    return coords
 
 def callback(req):
     top_left = req.top_left
@@ -19,38 +41,36 @@ def callback(req):
     try:
         get_points = rospy.ServiceProxy('get_points', GetPoints)
         response = get_points()
-        print("get coords line 17\n", response)
+        # points = np.array(response.points_array).reshape((-1, 2))
+        # shape = response.shape
 
-        points = np.array(response.points_array).reshape((-1, 2))
-        shape = response.shape
-        # corner_points = np.array([[0, 0], shape])
-        # points = np.vstack((corner_points, points))
+        # coords1 = np.empty(points.shape)
+        # coords1[:, 0] = ((shape[0] - points[:, 0]) / shape[0]) * height + bottom_right[0]
+        # coords1[:, 1] = ((shape[1] - points[:, 1]) / shape[1]) * width - bottom_right[1]
 
-        coords1 = np.empty(points.shape)
-        coords1[:, 0] = ((shape[0] - points[:, 0]) / shape[0]) * height + bottom_right[0]
-        coords1[:, 1] = ((shape[1] - points[:, 1]) / shape[1]) * width - bottom_right[1]
+        # coords2 = np.empty(points.shape)
+        # coords2[:, 0] = -points[:, 0] / shape[0] * height + top_left[0]
+        # coords2[:, 1] = -points[:, 1] / shape[1] * width - top_left[1]
 
-        coords2 = np.empty(points.shape)
-        coords2[:, 0] = -points[:, 0] / shape[0] * height + top_left[0]
-        coords2[:, 1] = -points[:, 1] / shape[1] * width - top_left[1]
+        # coords = (coords1 + coords2) / 2
 
-        coords = (coords1 + coords2) / 2
-
-        filtered_coords = []
-        for point in coords:
-            close_x = np.logical_and(coords[:, 0] < point[0] + CLOSE_RADIUS, coords[:, 0] > point[0] - CLOSE_RADIUS)
-            close_y = np.logical_and(coords[:, 1] < point[1] + CLOSE_RADIUS, coords[:, 1] > point[1] - CLOSE_RADIUS)
-            if np.logical_or(close_x, close_y).sum() > 1:
-                filtered_coords.append(point)
-        coords = np.array(filtered_coords)
+        # filtered_coords = []
+        # for point in coords:
+        #     close_x = np.logical_and(coords[:, 0] < point[0] + CLOSE_RADIUS, coords[:, 0] > point[0] - CLOSE_RADIUS)
+        #     close_y = np.logical_and(coords[:, 1] < point[1] + CLOSE_RADIUS, coords[:, 1] > point[1] - CLOSE_RADIUS)
+        #     if np.logical_or(close_x, close_y).sum() > 1:
+        #         filtered_coords.append(point)
+        # coords = np.array(filtered_coords)
+        coords = make_coords_array(response.points_array, response.shape, height, width, bottom_right, top_left)
+        poke_further_coords = make_coords_array(response.poke_further_points_array, response.shape,  height, width, bottom_right, top_left)
 
         print("bottom_right: ", bottom_right)
         
         print("coords type: ", type(coords), "coords: ", coords)
-        return [coords.flatten()]
+        return [coords.flatten(), poke_further_coords.flatten()]
     except rospy.ServiceException as e:
         print(e)
-        return []
+        return [], []
 
 def main():
     rospy.wait_for_service('get_points')

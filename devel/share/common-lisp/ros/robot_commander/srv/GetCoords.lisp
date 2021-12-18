@@ -101,10 +101,10 @@
   "robot_commander/GetCoordsRequest")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<GetCoords-request>)))
   "Returns md5sum for a message object of type '<GetCoords-request>"
-  "5fda44d5b45a78ce5dc124b63492459c")
+  "15ec566a7dce235e6b6c3180712c105f")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'GetCoords-request)))
   "Returns md5sum for a message object of type 'GetCoords-request"
-  "5fda44d5b45a78ce5dc124b63492459c")
+  "15ec566a7dce235e6b6c3180712c105f")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<GetCoords-request>)))
   "Returns full string definition for message of type '<GetCoords-request>"
   (cl:format cl:nil "float32[] top_left~%float32[] bottom_right~%~%~%"))
@@ -129,6 +129,11 @@
     :reader coords_array
     :initarg :coords_array
     :type (cl:vector cl:float)
+   :initform (cl:make-array 0 :element-type 'cl:float :initial-element 0.0))
+   (poke_further_coords_array
+    :reader poke_further_coords_array
+    :initarg :poke_further_coords_array
+    :type (cl:vector cl:float)
    :initform (cl:make-array 0 :element-type 'cl:float :initial-element 0.0)))
 )
 
@@ -144,6 +149,11 @@
 (cl:defmethod coords_array-val ((m <GetCoords-response>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader robot_commander-srv:coords_array-val is deprecated.  Use robot_commander-srv:coords_array instead.")
   (coords_array m))
+
+(cl:ensure-generic-function 'poke_further_coords_array-val :lambda-list '(m))
+(cl:defmethod poke_further_coords_array-val ((m <GetCoords-response>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader robot_commander-srv:poke_further_coords_array-val is deprecated.  Use robot_commander-srv:poke_further_coords_array instead.")
+  (poke_further_coords_array m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <GetCoords-response>) ostream)
   "Serializes a message object of type '<GetCoords-response>"
   (cl:let ((__ros_arr_len (cl:length (cl:slot-value msg 'coords_array))))
@@ -157,6 +167,17 @@
     (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
     (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream)))
    (cl:slot-value msg 'coords_array))
+  (cl:let ((__ros_arr_len (cl:length (cl:slot-value msg 'poke_further_coords_array))))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) __ros_arr_len) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) __ros_arr_len) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) __ros_arr_len) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) __ros_arr_len) ostream))
+  (cl:map cl:nil #'(cl:lambda (ele) (cl:let ((bits (roslisp-utils:encode-single-float-bits ele)))
+    (cl:write-byte (cl:ldb (cl:byte 8 0) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 8) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 16) bits) ostream)
+    (cl:write-byte (cl:ldb (cl:byte 8 24) bits) ostream)))
+   (cl:slot-value msg 'poke_further_coords_array))
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <GetCoords-response>) istream)
   "Deserializes a message object of type '<GetCoords-response>"
@@ -174,6 +195,20 @@
       (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
       (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
     (cl:setf (cl:aref vals i) (roslisp-utils:decode-single-float-bits bits))))))
+  (cl:let ((__ros_arr_len 0))
+    (cl:setf (cl:ldb (cl:byte 8 0) __ros_arr_len) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 8) __ros_arr_len) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 16) __ros_arr_len) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 24) __ros_arr_len) (cl:read-byte istream))
+  (cl:setf (cl:slot-value msg 'poke_further_coords_array) (cl:make-array __ros_arr_len))
+  (cl:let ((vals (cl:slot-value msg 'poke_further_coords_array)))
+    (cl:dotimes (i __ros_arr_len)
+    (cl:let ((bits 0))
+      (cl:setf (cl:ldb (cl:byte 8 0) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 8) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 16) bits) (cl:read-byte istream))
+      (cl:setf (cl:ldb (cl:byte 8 24) bits) (cl:read-byte istream))
+    (cl:setf (cl:aref vals i) (roslisp-utils:decode-single-float-bits bits))))))
   msg
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<GetCoords-response>)))
@@ -184,24 +219,26 @@
   "robot_commander/GetCoordsResponse")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<GetCoords-response>)))
   "Returns md5sum for a message object of type '<GetCoords-response>"
-  "5fda44d5b45a78ce5dc124b63492459c")
+  "15ec566a7dce235e6b6c3180712c105f")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'GetCoords-response)))
   "Returns md5sum for a message object of type 'GetCoords-response"
-  "5fda44d5b45a78ce5dc124b63492459c")
+  "15ec566a7dce235e6b6c3180712c105f")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<GetCoords-response>)))
   "Returns full string definition for message of type '<GetCoords-response>"
-  (cl:format cl:nil "float32[] coords_array~%~%~%~%"))
+  (cl:format cl:nil "float32[] coords_array~%float32[] poke_further_coords_array~%~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'GetCoords-response)))
   "Returns full string definition for message of type 'GetCoords-response"
-  (cl:format cl:nil "float32[] coords_array~%~%~%~%"))
+  (cl:format cl:nil "float32[] coords_array~%float32[] poke_further_coords_array~%~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <GetCoords-response>))
   (cl:+ 0
      4 (cl:reduce #'cl:+ (cl:slot-value msg 'coords_array) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 4)))
+     4 (cl:reduce #'cl:+ (cl:slot-value msg 'poke_further_coords_array) :key #'(cl:lambda (ele) (cl:declare (cl:ignorable ele)) (cl:+ 4)))
 ))
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <GetCoords-response>))
   "Converts a ROS message object to a list"
   (cl:list 'GetCoords-response
     (cl:cons ':coords_array (coords_array msg))
+    (cl:cons ':poke_further_coords_array (poke_further_coords_array msg))
 ))
 (cl:defmethod roslisp-msg-protocol:service-request-type ((msg (cl:eql 'GetCoords)))
   'GetCoords-request)

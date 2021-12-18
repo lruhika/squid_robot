@@ -40,7 +40,7 @@ template<>
 struct MD5Sum< ::robot_commander::GetCoords > {
   static const char* value()
   {
-    return "5fda44d5b45a78ce5dc124b63492459c";
+    return "15ec566a7dce235e6b6c3180712c105f";
   }
 
   static const char* value(const ::robot_commander::GetCoords&) { return value(); }

@@ -28,9 +28,9 @@ class Executor():
         tfListener = tf2_ros.TransformListener(self.tfBuffer)
         self.home_coord = np.array([0.6, 0.18, 0.18])
         self.hover_z = -0.08
-        self.poke_hover_z = -0.1
-        self.shallow_poke_depth = 0.07
-        self.deep_poke_depth = 0.09
+        self.poke_hover_z = -0.095
+        self.shallow_poke_depth = 0.045
+        self.deep_poke_depth = 0.08
         self.poke_x_offset = 0.01
         self.group = MoveGroupCommander('left_arm')
 
@@ -56,12 +56,15 @@ class Executor():
         return constraints
 
 
-    def coord_to_poke(self, coord):
+    def coord_to_poke(self, coord, is_deeper=False):
         coord = np.append(coord, self.hover_z)
         start_coord, end_coord = coord, coord
         hover_coord = coord - np.array([self.poke_x_offset, 0, 0])
         hover_coord[2] = self.poke_hover_z
-        poke_coord = coord - np.array([self.poke_x_offset, 0, self.shallow_poke_depth])
+        if is_deeper:
+            poke_coord = coord - np.array([self.poke_x_offset, 0, self.deep_poke_depth])
+        else:
+            poke_coord = coord - np.array([self.poke_x_offset, 0, self.shallow_poke_depth])
         end_coord[0] -= self.poke_x_offset
         return start_coord, hover_coord, poke_coord, end_coord
 
@@ -171,10 +174,13 @@ class Executor():
             req_bottom_right = [bottom_right.x, bottom_right.y, bottom_right.z]
             coords_response = get_coords(req_top_left, req_bottom_right)
             coords = np.array(coords_response.coords_array).reshape((-1, 2))
+            poke_further_coords = np.array(coords_response.poke_further_coords_array).reshape((-1, 2))
+
+            all_coords = np.concatenate((coords, poke_further_coords), axis=0)
+            all_coords = sorted(coords, key=lambda c: c[0])
 
             raw_input('Press enter to trace out path without poking.')
-            
-            hover_z = np.tile(self.hover_z, (len(coords), 1))
+            hover_z = np.tile(self.hover_z, (len(all_coords), 1))
             hover_coords = np.block([coords, hover_z])
             for coord in hover_coords:
                 self.do_ik(coord)
@@ -183,10 +189,19 @@ class Executor():
             man_x_off = float(manual_offset[0])
             man_y_off = float(manual_offset[1])
 
+            true_tile = np.tile(True, (len(poke_further_coords), 1))
+            false_tile = np.tile(False, (len(coords), 1))
+            shallow_coords = np.block([coords, false_tile])
+            deep_coords = np.block([poke_further_coords, true_tile])
+            coords = np.concatenate((shallow_coords, deep_coords), axis=0)
+            coords = sorted(coords, key=lambda c: c[0])
+
             self.do_ik(coord + np.array([0, 0, 2 * self.shallow_poke_depth]))
             raw_input('Press enter to begin executing poking path.')
             for coord in coords:
-                start, hover, poke, end = self.coord_to_poke(coord)
+                is_deeper = coord[-1]
+                coord = coord[:2]
+                start, hover, poke, end = self.coord_to_poke(coord, is_deeper=is_deeper)
                 for i, destination in enumerate([start, hover, poke, end]):
                     self.do_ik(destination - np.array([man_x_off, man_y_off, 0]))
                     if i == 1:
@@ -195,6 +210,20 @@ class Executor():
                         rospy.sleep(0.5)
 
             print('Image poked out!')
+
+            # raw_input('Press enter to trace out deeper path without poking.')
+            # pf_hover_z = np.tile(self.hover_z, (len(poke_further_coords), 1))
+            # pf_hover_coords = np.block([poke_further_coords, pf_hover_z])
+            # for coord in pf_hover_coords:
+            #     self.do_ik(coord)
+            
+            # self.do_ik(coord + np.array([0, 0, 4 * self.poke_depth])) # todo: what is this for?
+            # raw_input('Press enter to begin executing deeper poking path.')
+            # for coord in poke_further_coords:
+            #     start, poke, end = self.coord_to_poke(coord, is_deeper=True)
+            #     for i, destination in enumerate([start, poke, end]):
+            #         self.do_ik(destination)
+            #         rospy.sleep(1)
 
 
 if __name__ == '__main__':

@@ -84,24 +84,31 @@
 
 (defclass robot_commander::GetCoordsResponse
   :super ros::object
-  :slots (_coords_array ))
+  :slots (_coords_array _poke_further_coords_array ))
 
 (defmethod robot_commander::GetCoordsResponse
   (:init
    (&key
     ((:coords_array __coords_array) (make-array 0 :initial-element 0.0 :element-type :float))
+    ((:poke_further_coords_array __poke_further_coords_array) (make-array 0 :initial-element 0.0 :element-type :float))
     )
    (send-super :init)
    (setq _coords_array __coords_array)
+   (setq _poke_further_coords_array __poke_further_coords_array)
    self)
   (:coords_array
    (&optional __coords_array)
    (if __coords_array (setq _coords_array __coords_array)) _coords_array)
+  (:poke_further_coords_array
+   (&optional __poke_further_coords_array)
+   (if __poke_further_coords_array (setq _poke_further_coords_array __poke_further_coords_array)) _poke_further_coords_array)
   (:serialization-length
    ()
    (+
     ;; float32[] _coords_array
     (* 4    (length _coords_array)) 4
+    ;; float32[] _poke_further_coords_array
+    (* 4    (length _poke_further_coords_array)) 4
     ))
   (:serialize
    (&optional strm)
@@ -111,6 +118,11 @@
      (write-long (length _coords_array) s)
      (dotimes (i (length _coords_array))
        (sys::poke (elt _coords_array i) (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
+       )
+     ;; float32[] _poke_further_coords_array
+     (write-long (length _poke_further_coords_array) s)
+     (dotimes (i (length _poke_further_coords_array))
+       (sys::poke (elt _poke_further_coords_array i) (send s :buffer) (send s :count) :float) (incf (stream-count s) 4)
        )
      ;;
      (if (null strm) (get-output-stream-string s))))
@@ -123,6 +135,13 @@
      (dotimes (i n)
      (setf (elt _coords_array i) (sys::peek buf ptr- :float)) (incf ptr- 4)
      ))
+   ;; float32[] _poke_further_coords_array
+   (let (n)
+     (setq n (sys::peek buf ptr- :integer)) (incf ptr- 4)
+     (setq _poke_further_coords_array (instantiate float-vector n))
+     (dotimes (i n)
+     (setf (elt _poke_further_coords_array i) (sys::peek buf ptr- :float)) (incf ptr- 4)
+     ))
    ;;
    self)
   )
@@ -131,7 +150,7 @@
   :super ros::object
   :slots ())
 
-(setf (get robot_commander::GetCoords :md5sum-) "5fda44d5b45a78ce5dc124b63492459c")
+(setf (get robot_commander::GetCoords :md5sum-) "15ec566a7dce235e6b6c3180712c105f")
 (setf (get robot_commander::GetCoords :datatype-) "robot_commander/GetCoords")
 (setf (get robot_commander::GetCoords :request) robot_commander::GetCoordsRequest)
 (setf (get robot_commander::GetCoords :response) robot_commander::GetCoordsResponse)
@@ -139,28 +158,30 @@
 (defmethod robot_commander::GetCoordsRequest
   (:response () (instance robot_commander::GetCoordsResponse :init)))
 
-(setf (get robot_commander::GetCoordsRequest :md5sum-) "5fda44d5b45a78ce5dc124b63492459c")
+(setf (get robot_commander::GetCoordsRequest :md5sum-) "15ec566a7dce235e6b6c3180712c105f")
 (setf (get robot_commander::GetCoordsRequest :datatype-) "robot_commander/GetCoordsRequest")
 (setf (get robot_commander::GetCoordsRequest :definition-)
       "float32[] top_left
 float32[] bottom_right
 ---
 float32[] coords_array
+float32[] poke_further_coords_array
 
 ")
 
-(setf (get robot_commander::GetCoordsResponse :md5sum-) "5fda44d5b45a78ce5dc124b63492459c")
+(setf (get robot_commander::GetCoordsResponse :md5sum-) "15ec566a7dce235e6b6c3180712c105f")
 (setf (get robot_commander::GetCoordsResponse :datatype-) "robot_commander/GetCoordsResponse")
 (setf (get robot_commander::GetCoordsResponse :definition-)
       "float32[] top_left
 float32[] bottom_right
 ---
 float32[] coords_array
+float32[] poke_further_coords_array
 
 ")
 
 
 
-(provide :robot_commander/GetCoords "5fda44d5b45a78ce5dc124b63492459c")
+(provide :robot_commander/GetCoords "15ec566a7dce235e6b6c3180712c105f")
 
 
