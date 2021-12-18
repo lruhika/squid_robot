@@ -21,7 +21,7 @@ def find_next_unvisited(unvisited, start_r):
     return None
 
 # Given image in the form of a boolean 2D array, return an ordered list coordinates to visit and poke
-def img_to_path(img, img_buffer=5):
+def img_to_path(img, img_buffer=3):
     path = []
     poke_further_path = []
     unvisited = np.copy(img)
@@ -111,7 +111,8 @@ def crop_corners(img):
     if len(corners) != 2:
         top_left_blob = corners[corners[:, 0] < rows / 2]
         bottom_right_blob = corners[corners[:, 0] > rows / 2]
-        corners = [top_left_blob.mean(axis=0).astype('int'), bottom_right_blob.mean(axis=0).astype('int')]
+        # corners = [top_left_blob.mean(axis=0).astype('int'), bottom_right_blob.mean(axis=0).astype('int')]
+        corners = [top_left_blob[-1], bottom_right_blob[0]]
         
     top_left, bottom_right = corners[0], corners[1]
     img = np.array(img)

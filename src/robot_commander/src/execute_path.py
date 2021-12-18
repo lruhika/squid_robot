@@ -8,6 +8,8 @@ from moveit_msgs.msg import OrientationConstraint, Constraints
 from trac_ik_python.trac_ik import IK
 from robot_commander.srv import GetCoords
 from moveit_commander import MoveGroupCommander
+from controller import Controller
+from baxter_interface import Limb
 import tf2_ros
 import numpy as np
 
@@ -26,10 +28,17 @@ class Executor():
         tfListener = tf2_ros.TransformListener(self.tfBuffer)
         self.home_coord = np.array([0.6, 0.18, 0.18])
         self.hover_z = -0.08
-        self.poke_depth = 0.08
-        self.poke_further_depth = 0.10
-        self.poke_x_offset = 0.02
+        self.poke_hover_z = -0.1
+        self.shallow_poke_depth = 0.07
+        self.deep_poke_depth = 0.09
+        self.poke_x_offset = 0.01
         self.group = MoveGroupCommander('left_arm')
+
+        self.Kp = 0.45 * np.array([0.8, 2.5, 1.7, 2.2, 2.4, 3, 4])
+        self.Kd = 0.015 * np.array([2, 1, 2, 0.5, 0.8, 0.8, 0.8])
+        self.Ki = 0.01 * np.array([1.4, 1.4, 1.4, 1, 0.6, 0.6, 0.6])
+        self.Kw = np.array([0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9])
+        self.controller = Controller(self.Kp, self.Ki, self.Kd, self.Kw, Limb('left'))
 
 
     def get_constraint(self):
@@ -50,11 +59,14 @@ class Executor():
     def coord_to_poke(self, coord, is_deeper=False):
         coord = np.append(coord, self.hover_z)
         start_coord, end_coord = coord, coord
+        hover_coord = coord - np.array([self.poke_x_offset, 0, 0])
+        hover_coord[2] = self.poke_hover_z
         if is_deeper:
-            poke_coord = coord - np.array([self.poke_x_offset, 0, self.poke_further_depth])
+            poke_coord = coord - np.array([self.poke_x_offset, 0, self.deep_poke_depth])
         else:
-            poke_coord = coord - np.array([self.poke_x_offset, 0, self.poke_depth])
-        return start_coord, poke_coord, end_coord
+            poke_coord = coord - np.array([self.poke_x_offset, 0, self.shallow_poke_depth])
+        end_coord[0] -= self.poke_x_offset
+        return start_coord, hover_coord, poke_coord, end_coord
 
 
     def perturb(self):
@@ -98,9 +110,13 @@ class Executor():
                         response = self.compute_ik(request)
                     i += 1
                 self.group.set_pose_target(request.ik_request.pose_stamped)
+                self.group.set_start_state_to_current_state()
                 if constrain:
                     constraint = self.get_constraint()
                     self.group.set_path_constraints(constraint)
+                # plan = self.group.plan()
+                # if not self.controller.execute_path(plan):
+                #     raise Exception('Execution failed')
                 self.group.go()
                 break
             except rospy.ServiceException as e:
@@ -166,13 +182,20 @@ class Executor():
             for coord in hover_coords:
                 self.do_ik(coord)
 
-            self.do_ik(coord + np.array([0, 0, 4 * self.poke_depth]))
+            manual_offset = raw_input("If needed, enter a manual offset in the form x y: ").split(" ")
+            man_x_off = float(manual_offset[0])
+            man_y_off = float(manual_offset[1])
+
+            self.do_ik(coord + np.array([0, 0, 2 * self.shallow_poke_depth]))
             raw_input('Press enter to begin executing poking path.')
             for coord in coords:
-                start, poke, end = self.coord_to_poke(coord)
-                for i, destination in enumerate([start, poke, end]):
-                    self.do_ik(destination)
-                    rospy.sleep(1)
+                start, hover, poke, end = self.coord_to_poke(coord)
+                for i, destination in enumerate([start, hover, poke, end]):
+                    self.do_ik(destination - np.array([man_x_off, man_y_off, 0]))
+                    if i == 1:
+                        rospy.sleep(2)
+                    else:
+                        rospy.sleep(0.5)
 
             print('Image poked out!')
 

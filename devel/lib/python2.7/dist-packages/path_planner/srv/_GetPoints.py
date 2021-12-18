@@ -99,14 +99,15 @@ import struct
 
 
 class GetPointsResponse(genpy.Message):
-  _md5sum = "5627a41c994a8a6c1c220d190cfef6d1"
+  _md5sum = "37d9a86923a6c69a3912b000f406889e"
   _type = "path_planner/GetPointsResponse"
   _has_header = False  # flag to mark the presence of a Header object
   _full_text = """float32[] points_array
+float32[] poke_further_points_array
 float32[] shape
 """
-  __slots__ = ['points_array','shape']
-  _slot_types = ['float32[]','float32[]']
+  __slots__ = ['points_array','poke_further_points_array','shape']
+  _slot_types = ['float32[]','float32[]','float32[]']
 
   def __init__(self, *args, **kwds):
     """
@@ -116,7 +117,7 @@ float32[] shape
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       points_array,shape
+       points_array,poke_further_points_array,shape
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -127,10 +128,13 @@ float32[] shape
       # message fields cannot be None, assign default values for those that are
       if self.points_array is None:
         self.points_array = []
+      if self.poke_further_points_array is None:
+        self.poke_further_points_array = []
       if self.shape is None:
         self.shape = []
     else:
       self.points_array = []
+      self.poke_further_points_array = []
       self.shape = []
 
   def _get_types(self):
@@ -149,6 +153,10 @@ float32[] shape
       buff.write(_struct_I.pack(length))
       pattern = '<%sf'%length
       buff.write(struct.Struct(pattern).pack(*self.points_array))
+      length = len(self.poke_further_points_array)
+      buff.write(_struct_I.pack(length))
+      pattern = '<%sf'%length
+      buff.write(struct.Struct(pattern).pack(*self.poke_further_points_array))
       length = len(self.shape)
       buff.write(_struct_I.pack(length))
       pattern = '<%sf'%length
@@ -179,6 +187,14 @@ float32[] shape
       start = end
       s = struct.Struct(pattern)
       end += s.size
+      self.poke_further_points_array = s.unpack(str[start:end])
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      pattern = '<%sf'%length
+      start = end
+      s = struct.Struct(pattern)
+      end += s.size
       self.shape = s.unpack(str[start:end])
       return self
     except struct.error as e:
@@ -196,6 +212,10 @@ float32[] shape
       buff.write(_struct_I.pack(length))
       pattern = '<%sf'%length
       buff.write(self.points_array.tostring())
+      length = len(self.poke_further_points_array)
+      buff.write(_struct_I.pack(length))
+      pattern = '<%sf'%length
+      buff.write(self.poke_further_points_array.tostring())
       length = len(self.shape)
       buff.write(_struct_I.pack(length))
       pattern = '<%sf'%length
@@ -227,6 +247,14 @@ float32[] shape
       start = end
       s = struct.Struct(pattern)
       end += s.size
+      self.poke_further_points_array = numpy.frombuffer(str[start:end], dtype=numpy.float32, count=length)
+      start = end
+      end += 4
+      (length,) = _struct_I.unpack(str[start:end])
+      pattern = '<%sf'%length
+      start = end
+      s = struct.Struct(pattern)
+      end += s.size
       self.shape = numpy.frombuffer(str[start:end], dtype=numpy.float32, count=length)
       return self
     except struct.error as e:
@@ -238,6 +266,6 @@ def _get_struct_I():
     return _struct_I
 class GetPoints(object):
   _type          = 'path_planner/GetPoints'
-  _md5sum = '5627a41c994a8a6c1c220d190cfef6d1'
+  _md5sum = '37d9a86923a6c69a3912b000f406889e'
   _request_class  = GetPointsRequest
   _response_class = GetPointsResponse
